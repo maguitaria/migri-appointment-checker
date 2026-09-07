@@ -26,7 +26,7 @@ async function findSlots() {
     await page.waitForTimeout(2_000)
 
     const lines = (await page.locator('body').innerText()).split('\n').map((line) => line.trim()).filter(Boolean)
-    const slots = lines.filter((line) => /\b(?:[01]?\d|2[0-3])[:.]\d{2}\b/.test(line))
+    const slots = lines.filter((line) => /\b(?:[01]?\d|2[0-3]):\d{2}\b/.test(line))
     return [...new Set(slots)]
   } finally {
     await browser.close()
@@ -58,8 +58,12 @@ const previous = existsSync(stateFile) ? JSON.parse(readFileSync(stateFile, 'utf
 const newSlots = slots.filter((slot) => !previous.includes(slot))
 
 if (newSlots.length > 0) {
-  await sendEmail(newSlots)
-  console.log(`Sent alert for ${newSlots.length} new slot(s).`)
+  if (process.env.DRY_RUN === 'true') {
+    console.log(`Dry run — new slots: ${newSlots.join(' | ')}`)
+  } else {
+    await sendEmail(newSlots)
+    console.log(`Sent alert for ${newSlots.length} new slot(s).`)
+  }
 } else {
   console.log(`No new slots. Visible slots: ${slots.length}.`)
 }
