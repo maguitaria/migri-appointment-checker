@@ -52,6 +52,11 @@ body { margin: 0; }
 .watcher-list b { display: block; margin-top: 3px; color: #202226; font-size: 14px; }
 .about h2 { margin: 6px 0 10px; }
 .about p { max-width: 720px; color: #737973; line-height: 1.6; }
+.slots ul { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin: 22px 0; padding: 0; list-style: none; }
+.slots li { display: grid; gap: 2px; padding: 12px 14px; border-radius: 12px; background: #f4f7f3; }
+.slots li b { color: #202226; font-size: 16px; }
+.slots li span { color: #69736c; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; }
+.slots li.empty-slot { display: block; grid-column: 1 / -1; color: #737973; font-size: 13px; }
 .result { padding: clamp(22px, 5vw, 36px); color: #f6f7f3; background: #252a28; transition: box-shadow .3s; }
 .result.flash { box-shadow: 0 0 0 5px #d66c4a40; }
 .result.has-slots { background: #3e3229; }

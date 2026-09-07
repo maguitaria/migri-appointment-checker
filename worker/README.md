@@ -10,7 +10,7 @@ GET  /internal/telegram-subscriptions # GitHub Actions only
 GET  /public/stats                    # anonymized public counts
 ```
 
-The Worker stores chat IDs, selected locations, and selected flows. One bot is shared by all users; each user gets a separate subscription row. `MONITOR_API_KEY`, `TELEGRAM_BOT_TOKEN`, and `TELEGRAM_WEBHOOK_SECRET` are server secrets. Never put them in `config.js` or the website.
+The Worker stores chat IDs and selected locations. One bot is shared by all users; each user gets a separate location subscription row. `MONITOR_API_KEY`, `TELEGRAM_BOT_TOKEN`, and `TELEGRAM_WEBHOOK_SECRET` are server secrets. Never put them in `config.js` or the website.
 
 ## Deploy
 

@@ -1,4 +1,4 @@
-name: Check Migri Oulu appointments
+name: Check Migri appointments hourly
 
 on:
   workflow_dispatch:

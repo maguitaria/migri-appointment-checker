@@ -4,7 +4,7 @@ Public website + background checker for Migri appointments.
 
 The service:
 
-- lets a visitor choose Oulu, Rovaniemi, or Vaasa and a reason;
+- lets a visitor choose Oulu, Rovaniemi, or Vaasa;
 - opens the Telegram bot with that preference;
 - stores the user’s Telegram chat ID privately in Cloudflare D1;
 - checks each selected location with a read-only browser worker every hour;
@@ -12,7 +12,7 @@ The service:
 - shows an anonymized count of active watchers per location;
 - never enters personal data or books an appointment.
 
-Current locations: **Oulu, Rovaniemi, and Vaasa**. Current reasons: work, family, study, and permanent residence.
+Current locations: **Oulu, Rovaniemi, and Vaasa**. The runner checks all configured residence-permit flows for each location, so users do not need to choose a permit subtype.
 
 ## What the admin owns
 
@@ -132,14 +132,14 @@ Use either GitHub Actions or `npm run runner`, not both for the same bot subscri
 
 ## How it works
 
-The website is a public control panel. A user selects a location and reason, then opens the shared Telegram bot. The bot stores only the Telegram chat ID, selected location, selected reason, and active status in the private D1 database. The public site shows only aggregate watcher counts.
+The website is a public control panel. A user selects a location, then opens the shared Telegram bot. The bot stores only the Telegram chat ID, selected location, and active status in the private D1 database. The public site shows only aggregate watcher counts.
 
-The scheduled runner loads active subscriptions, groups them by location and reason, checks the official Migri booking flow, and compares visible times with the previous check. A new time is sent to matching Telegram subscribers. The service never reserves an appointment and never enters identity or application data.
+The scheduled runner checks all configured residence-permit flows for every supported location once per hour, combines and deduplicates the visible times, and compares them with the previous check. A new time is sent once to subscribers watching that location; it is not repeated every hour while the same slot remains visible. The public page lists the latest combined snapshot. The service never reserves an appointment and never enters identity or application data.
 
 ## User flow
 
 1. Visitor opens the website.
-2. Visitor selects a location and a residence-permit reason.
+2. Visitor selects a location.
 3. Visitor clicks **Continue in Telegram**.
 4. Visitor presses **Start** in the bot.
 5. The bot confirms the subscription.

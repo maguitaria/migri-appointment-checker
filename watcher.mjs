@@ -59,12 +59,11 @@ async function getSubscriptions() {
   return recipients.map((chat_id) => ({ chat_id, location: process.env.DEFAULT_LOCATION || 'Oulu', flow: process.env.DEFAULT_FLOW || 'residence_work' }))
 }
 
-async function sendTelegram(locationId, flowId, slots, subscriptions) {
+async function sendTelegram(locationId, slots, subscriptions) {
   const location = locations[locationId]
-  const flow = flows[flowId]
   const recipients = [...new Set(subscriptions.map((subscription) => String(subscription.chat_id)))]
   const text = [
-    `A Migri appointment may be available in ${location.label} for ${flow.label}.`,
+    `A Migri appointment may be available in ${location.label}.`,
     '',
     ...slots.map((slot) => `• ${slot}`),
     '',
@@ -79,23 +78,24 @@ async function sendTelegram(locationId, flowId, slots, subscriptions) {
 }
 
 const subscriptions = await getSubscriptions()
-const groups = Object.groupBy ? Object.groupBy(subscriptions, (subscription) => `${subscription.location || 'Oulu'}:${subscription.flow}`) : subscriptions.reduce((result, subscription) => {
-  const key = `${subscription.location || 'Oulu'}:${subscription.flow}`
-  return { ...result, [key]: [...(result[key] || []), subscription] }
-}, {})
+const groups = Object.fromEntries(Object.keys(locations).map((locationId) => [locationId, subscriptions.filter((subscription) => (subscription.location || 'Oulu') === locationId)]))
 const previous = existsSync(stateFile) ? JSON.parse(readFileSync(stateFile, 'utf8')) : { alerts: {} }
 const alerts = {}
 
-for (const [key, group] of Object.entries(groups)) {
-  const [locationId, flowId] = key.split(':')
-  if (!locations[locationId] || !flows[flowId]) continue
-  const slots = await findSlots(locationId, flowId)
-  const oldSlots = previous.alerts?.[key] || []
+const availableSlots = []
+
+for (const [locationId, group] of Object.entries(groups)) {
+  if (!locations[locationId]) continue
+  const foundByFlow = []
+  for (const flowId of Object.keys(flows)) foundByFlow.push({ flowId, slots: await findSlots(locationId, flowId) })
+  const slots = [...new Set(foundByFlow.flatMap(({ slots }) => slots))]
+  const oldSlots = previous.alerts?.[locationId] || []
   const newSlots = slots.filter((slot) => !oldSlots.includes(slot))
-  if (newSlots.length > 0 && process.env.DRY_RUN !== 'true') await sendTelegram(locationId, flowId, newSlots, group)
-  if (newSlots.length > 0) console.log(`${process.env.DRY_RUN === 'true' ? 'Dry run — ' : ''}${locationId}/${flowId}: ${newSlots.join(' | ')}`)
-  else console.log(`${locationId}/${flowId}: no new slots; visible slots: ${slots.length}`)
-  alerts[key] = slots
+  if (newSlots.length > 0 && group.length > 0 && process.env.DRY_RUN !== 'true') await sendTelegram(locationId, newSlots, group)
+  if (newSlots.length > 0) console.log(`${process.env.DRY_RUN === 'true' ? 'Dry run — ' : ''}${locationId}: ${newSlots.join(' | ')}`)
+  else console.log(`${locationId}: no new slots; visible slots: ${slots.length}`)
+  alerts[locationId] = slots
+  availableSlots.push(...slots.map((time) => ({ location: locationId, time })))
 }
 
-writeFileSync(stateFile, JSON.stringify({ status: 'ok', alerts, slots: Object.values(alerts).flat(), checkedAt: new Date().toISOString(), check: 'All subscribed locations and reasons', bookingUrl: BOOKING_URL }, null, 2))
+writeFileSync(stateFile, JSON.stringify({ status: 'ok', alerts, slots: availableSlots.map(({ time }) => time), availableSlots, checkedAt: new Date().toISOString(), check: 'All residence-permit flows for subscribed locations', bookingUrl: BOOKING_URL }, null, 2))

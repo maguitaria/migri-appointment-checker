@@ -1,4 +1,3 @@
-const allowedFlows = new Set(['residence_work', 'residence_family', 'residence_study', 'residence_permanent'])
 const locations = {
   Oulu: 'Oulu : Oulun palvelupiste',
   Rovaniemi: 'Rovaniemi : Rovaniemen palvelupiste',
@@ -33,16 +32,17 @@ async function handleTelegramUpdate(update, env) {
   }
 
   if (!text.startsWith('/start')) return
-  const payload = text.split(/\s+/)[1] || 'Oulu:residence_work'
-  const [location = 'Oulu', flow = 'residence_work'] = payload.split(':')
-  if (!allowedFlows.has(flow) || !allowedLocations.has(location)) {
+  const payload = text.split(/\s+/)[1] || 'Oulu'
+  const [location] = payload.split(':')
+  const flow = 'all'
+  if (!allowedLocations.has(location)) {
     await telegram(env, 'sendMessage', { chat_id: chatId, text: 'Choose a notification from the website and use its Telegram button to subscribe.' })
     return
   }
 
   const id = crypto.randomUUID()
   await env.DB.prepare(`INSERT INTO telegram_subscriptions (id, chat_id, username, location, flow, active, created_at) VALUES (?, ?, ?, ?, ?, 1, datetime('now')) ON CONFLICT(chat_id, location, flow) DO UPDATE SET active = 1, username = excluded.username`).bind(id, chatId, message.from?.username || '', location, flow).run()
-  await telegram(env, 'sendMessage', { chat_id: chatId, text: `You are subscribed to Migri ${location} alerts. We will message you when a new time appears. Send /stop to unsubscribe.` })
+  await telegram(env, 'sendMessage', { chat_id: chatId, text: `You are subscribed to all Migri appointment times in ${location}. We check hourly and will message you when a new time appears. Send /stop to unsubscribe.` })
 }
 
 export default {
