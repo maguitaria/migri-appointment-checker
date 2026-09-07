@@ -4,14 +4,14 @@ Public website + background checker for Migri appointments.
 
 The service:
 
-- lets a visitor choose Oulu, Rovaniemi, or Vaasa;
+- lets a visitor choose any supported Finnish Migri service point;
 - opens the Telegram bot with that preference;
 - stores the user’s Telegram chat ID privately in Cloudflare D1;
 - checks each selected location with a read-only browser worker every hour;
 - sends a Telegram alert when a new time appears;
 - never enters personal data or books an appointment.
 
-Current locations: **Oulu, Rovaniemi, and Vaasa**. The runner checks all configured residence-permit flows for each location, so users do not need to choose a permit subtype.
+Current locations: **Ahvenanmaa/Mariehamn, Helsinki Malmi, Kuopio, Lahti, Lappeenranta, Oulu, Rovaniemi, Tampere, Turku/Raisio, and Vaasa**. The runner checks all configured residence-permit flows for each location, so users do not need to choose a permit subtype.
 
 ## What the admin owns
 
@@ -153,13 +153,13 @@ Use either GitHub Actions or `npm run runner`, not both for the same bot subscri
 
 The website is a public control panel. A user selects a location, then opens the shared Telegram bot. The bot stores only the Telegram chat ID, selected location, and active status in the private D1 database.
 
-The scheduled runner checks all configured residence-permit flows and the next ten visible Migri weeks for every supported location once per hour. Each result includes the exact date, time, location, and reason that produced it. Results are combined and deduplicated, then compared with the previous check. A new time is sent once to subscribers watching that location; it is not repeated every hour while the same slot remains visible. The public page lists the latest combined snapshot. The service never reserves an appointment and never enters identity or application data.
+The scheduled runner checks all configured residence-permit flows and the next ten visible Migri weeks for every supported location once per hour. The public page sorts the results by earliest date/time and paginates them. Each result includes the exact date, time, location, and reason that produced it. Results are combined and deduplicated, then compared with the previous check. A new time is sent once to subscribers watching that location; it is not repeated every hour while the same slot remains visible. The service never reserves an appointment and never enters identity or application data.
 
 ## User flow
 
 1. Visitor opens the website.
 2. Visitor selects a location.
-3. Visitor clicks **Continue in Telegram**.
+3. Visitor clicks **Get alerts in Telegram**.
 4. Visitor presses **Start** in the bot.
 5. The bot confirms the subscription.
 6. The checker sends a Telegram message when a new time appears.

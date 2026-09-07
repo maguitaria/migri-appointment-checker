@@ -4,8 +4,15 @@ import { existsSync, readFileSync, writeFileSync } from 'node:fs'
 const BOOKING_URL = 'https://migri.vihta.com/public/migri/#/home'
 const stateFile = new URL('./state.json', import.meta.url)
 const locations = {
+  Ahvenanmaa: { label: 'Ahvenanmaa / Mariehamn', office: 'Ahvenanmaa Åland : Maarianhaminan palvelupiste' },
+  Helsinki: { label: 'Helsinki', office: 'Helsinki : Helsingin palvelupiste (Malmi)' },
+  Kuopio: { label: 'Kuopio', office: 'Kuopio : Kuopion palvelupiste' },
+  Lahti: { label: 'Lahti', office: 'Lahti : Lahden palvelupiste' },
+  Lappeenranta: { label: 'Lappeenranta', office: 'Lappeenrannan palvelupiste' },
   Oulu: { label: 'Oulu', office: 'Oulu : Oulun palvelupiste' },
   Rovaniemi: { label: 'Rovaniemi', office: 'Rovaniemi : Rovaniemen palvelupiste' },
+  Tampere: { label: 'Tampere', office: 'Tampere : Tampereen palvelupiste' },
+  Turku: { label: 'Turku / Raisio', office: 'Turku : Raision palvelupiste' },
   Vaasa: { label: 'Vaasa', office: 'Vaasa : Vaasan palvelupiste' }
 }
 const flows = {
@@ -100,6 +107,14 @@ const alerts = {}
 
 const availableSlots = []
 
+const slotOrder = (a, b) => {
+  const dateValue = (slot) => {
+    const [day, month, year] = slot.date.split('.').map(Number)
+    return new Date(year, month - 1, day, ...slot.time.split(':').map(Number)).getTime()
+  }
+  return dateValue(a) - dateValue(b) || a.location.localeCompare(b.location) || a.flow.localeCompare(b.flow)
+}
+
 for (const [locationId, group] of Object.entries(groups)) {
   if (!locations[locationId]) continue
   const foundByFlow = []
@@ -112,8 +127,10 @@ for (const [locationId, group] of Object.entries(groups)) {
   if (newSlots.length > 0 && group.length > 0 && process.env.DRY_RUN !== 'true') await sendTelegram(locationId, newSlots, group)
   if (newSlots.length > 0) console.log(`${process.env.DRY_RUN === 'true' ? 'Dry run — ' : ''}${locationId}: ${newSlots.map((slot) => `${slot.date} ${slot.time} — ${slot.flow}`).join(' | ')}`)
   else console.log(`${locationId}: no new slots; visible slots: ${uniqueSlots.length}`)
+  uniqueSlots.sort((a, b) => slotOrder({ ...a, location: locationId }, { ...b, location: locationId }))
   alerts[locationId] = uniqueSlots
   availableSlots.push(...uniqueSlots.map(({ date, time, flow }) => ({ location: locationId, date, time, flow })))
 }
 
+availableSlots.sort(slotOrder)
 writeFileSync(stateFile, JSON.stringify({ status: 'ok', alerts, slots: availableSlots.map(({ date, time, flow }) => `${date} ${time} — ${flow}`), availableSlots, checkedAt: new Date().toISOString(), check: 'All residence-permit flows for all supported locations', bookingUrl: BOOKING_URL }, null, 2))

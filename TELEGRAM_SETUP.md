@@ -96,8 +96,8 @@ If the URL is empty or different, run `npm run setup:telegram` again.
 ## 6. Test the real user flow
 
 1. Open the public website: <https://maguitaria.github.io/migri-appointment-checker/>.
-2. Select Oulu, Rovaniemi, or Vaasa.
-3. Click **Open Telegram**.
+2. Select any listed service point.
+3. Click **Get ... alerts in Telegram**.
 4. In Telegram, press **Start**.
 5. The bot must reply with a subscription confirmation.
 6. If it replies, the user is stored for that location.

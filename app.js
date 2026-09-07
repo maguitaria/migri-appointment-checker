@@ -2,7 +2,43 @@ const statusText = document.querySelector('#runner-status')
 const lastCheckedText = document.querySelector('#last-checked')
 const subscribeForm = document.querySelector('#subscribe-form')
 const formMessage = document.querySelector('#form-message')
+const locationSelect = document.querySelector('#location')
+const subscribeButton = document.querySelector('#subscribe-button')
+const slotLocation = document.querySelector('#slot-location')
+const previousPage = document.querySelector('#previous-page')
+const nextPage = document.querySelector('#next-page')
+const pageInfo = document.querySelector('#slot-page-info')
 const escapeHtml = (value) => String(value ?? '').replace(/[&<>"']/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[character])
+const pageSize = 30
+let allSlots = []
+let page = 1
+
+function selectedLocationLabel() {
+  return locationSelect?.selectedOptions?.[0]?.textContent?.split(' · ')[0] || 'location'
+}
+
+function updateSubscribeButton() {
+  if (subscribeButton) subscribeButton.innerHTML = `Get ${escapeHtml(selectedLocationLabel())} alerts in Telegram <span>↗</span>`
+}
+
+function renderSlots() {
+  const slotList = document.querySelector('#slot-list')
+  if (!slotList) return
+  const filtered = slotLocation?.value === 'all' ? allSlots : allSlots.filter((slot) => slot.location === slotLocation?.value)
+  const pageCount = Math.max(1, Math.ceil(filtered.length / pageSize))
+  page = Math.min(page, pageCount)
+  const visible = filtered.slice((page - 1) * pageSize, page * pageSize)
+  slotList.innerHTML = visible.length ? visible.map(({ location, date, time, flow }) => `<li><b>${escapeHtml(date || 'Date pending')} · ${escapeHtml(time)}</b><span>${escapeHtml(location)} · ${escapeHtml(flow || 'Reason pending')}</span></li>`).join('') : '<li class="empty-slot">No slots in this selection.</li>'
+  if (pageInfo) pageInfo.textContent = filtered.length ? `${filtered.length} slots · page ${page}/${pageCount}` : '0 slots'
+  if (previousPage) previousPage.disabled = page <= 1
+  if (nextPage) nextPage.disabled = page >= pageCount
+}
+
+locationSelect?.addEventListener('change', updateSubscribeButton)
+slotLocation?.addEventListener('change', () => { page = 1; renderSlots() })
+previousPage?.addEventListener('click', () => { page -= 1; renderSlots() })
+nextPage?.addEventListener('click', () => { page += 1; renderSlots() })
+updateSubscribeButton()
 
 fetch(`state.json?ts=${Date.now()}`)
   .then((response) => (response.ok ? response.json() : null))
@@ -10,9 +46,8 @@ fetch(`state.json?ts=${Date.now()}`)
     if (!state) return
     if (statusText) statusText.textContent = state.status === 'ok' ? 'Runner online' : 'Runner needs attention'
     if (lastCheckedText && state.checkedAt) lastCheckedText.textContent = `Last checked ${new Date(state.checkedAt).toLocaleString()}`
-    const slotList = document.querySelector('#slot-list')
-    const slots = state.availableSlots || []
-    if (slotList) slotList.innerHTML = slots.length ? slots.map(({ location, date, time, flow }) => `<li><b>${escapeHtml(date || 'Date pending')} · ${escapeHtml(time)}</b><span>${escapeHtml(location)} · ${escapeHtml(flow || 'Reason pending')}</span></li>`).join('') : '<li class="empty-slot">No times visible in the latest check.</li>'
+    allSlots = state.availableSlots || []
+    renderSlots()
   })
   .catch(() => {})
 

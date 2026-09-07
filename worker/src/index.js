@@ -1,6 +1,13 @@
 const locations = {
+  Ahvenanmaa: 'Ahvenanmaa Åland : Maarianhaminan palvelupiste',
+  Helsinki: 'Helsinki : Helsingin palvelupiste (Malmi)',
+  Kuopio: 'Kuopio : Kuopion palvelupiste',
+  Lahti: 'Lahti : Lahden palvelupiste',
+  Lappeenranta: 'Lappeenranta : Lappeenrannan palvelupiste',
   Oulu: 'Oulu : Oulun palvelupiste',
   Rovaniemi: 'Rovaniemi : Rovaniemen palvelupiste',
+  Tampere: 'Tampere : Tampereen palvelupiste',
+  Turku: 'Turku : Raision palvelupiste',
   Vaasa: 'Vaasa : Vaasan palvelupiste'
 }
 const allowedLocations = new Set(Object.keys(locations))
