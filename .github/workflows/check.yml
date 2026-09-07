@@ -23,9 +23,8 @@ jobs:
       - run: npx playwright install --with-deps chromium
       - run: npm run check
         env:
-          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
-          ALERT_FROM: ${{ secrets.ALERT_FROM }}
-          ALERT_TO: ${{ secrets.ALERT_TO }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          ALERT_CHAT_IDS: ${{ secrets.ALERT_CHAT_IDS }}
           SUBSCRIPTION_API_URL: ${{ secrets.SUBSCRIPTION_API_URL }}
           MONITOR_API_KEY: ${{ secrets.MONITOR_API_KEY }}
       - uses: actions/upload-artifact@v4

@@ -1,16 +1,15 @@
-# Subscription API
+# Telegram subscription API
 
-Cloudflare Worker + D1 API used by the public website.
+Cloudflare Worker + D1 API used by the public website and Telegram bot.
 
 ## Routes
 
 ```text
-POST /subscribe
-GET  /unsubscribe?token=...
-GET  /internal/subscriptions   # requires MONITOR_API_KEY
+POST /telegram/webhook              # Telegram calls this
+GET  /internal/telegram-subscriptions # GitHub Actions only
 ```
 
-The public route accepts an email, location, and supported flow. The internal route is used only by GitHub Actions. Do not put `MONITOR_API_KEY` in the website or `config.js`.
+The Worker stores chat IDs and selected flows. `MONITOR_API_KEY`, `TELEGRAM_BOT_TOKEN`, and `TELEGRAM_WEBHOOK_SECRET` are server secrets. Never put them in `config.js` or the website.
 
 ## Deploy
 
@@ -22,16 +21,18 @@ npx wrangler d1 create migri-subscriptions
 cp wrangler.toml.example wrangler.toml
 # Copy the returned database_id into wrangler.toml.
 npx wrangler d1 execute migri-subscriptions --remote --file=schema.sql
+npx wrangler secret put TELEGRAM_BOT_TOKEN
+npx wrangler secret put TELEGRAM_WEBHOOK_SECRET
 npx wrangler secret put MONITOR_API_KEY
 npx wrangler deploy
 ```
 
-If Wrangler asks for a `workers.dev` subdomain, register one in the Cloudflare dashboard and repeat the deploy command.
+Register the webhook after deployment:
 
-After deployment:
+```sh
+curl -X POST "https://api.telegram.org/botBOT_TOKEN/setWebhook" \
+  -d "url=https://YOUR_WORKER.workers.dev/telegram/webhook" \
+  -d "secret_token=WEBHOOK_SECRET"
+```
 
-1. Put the Worker URL in the root `config.js` as `API_URL`.
-2. Add the same URL to GitHub Actions as `SUBSCRIPTION_API_URL`.
-3. Add the same monitor secret to GitHub Actions as `MONITOR_API_KEY`.
-
-The D1 schema is in `schema.sql`. The first production location is Oulu; the schema includes location so more offices can be added later.
+Then set `TELEGRAM_BOT_USERNAME` in the root `config.js`. The bot username is public; its token is not.

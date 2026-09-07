@@ -10,8 +10,8 @@ const flows = {
   residence_permanent: { category: 'Oleskelulupa', service: '5. Pysyvä oleskelulupa', label: 'Residence permit · Permanent' }
 }
 
-if (!process.env.RESEND_API_KEY || !process.env.ALERT_FROM) {
-  throw new Error('Set RESEND_API_KEY and ALERT_FROM in .env')
+if (!process.env.TELEGRAM_BOT_TOKEN) {
+  throw new Error('Set TELEGRAM_BOT_TOKEN in .env')
 }
 
 async function findSlots(flowId) {
@@ -42,21 +42,21 @@ async function findSlots(flowId) {
 
 async function getSubscriptions() {
   if (process.env.SUBSCRIPTION_API_URL && process.env.MONITOR_API_KEY) {
-    const response = await fetch(`${process.env.SUBSCRIPTION_API_URL.replace(/\/$/, '')}/internal/subscriptions`, {
+    const response = await fetch(`${process.env.SUBSCRIPTION_API_URL.replace(/\/$/, '')}/internal/telegram-subscriptions`, {
       headers: { Authorization: `Bearer ${process.env.MONITOR_API_KEY}` }
     })
     if (!response.ok) throw new Error(`Subscription API failed: ${response.status}`)
     return response.json()
   }
 
-  const recipients = (process.env.ALERT_TO || '').split(',').map((value) => value.trim()).filter(Boolean)
-  return recipients.map((email) => ({ email, flow: process.env.DEFAULT_FLOW || 'residence_work', token: '' }))
+  const recipients = (process.env.ALERT_CHAT_IDS || '').split(',').map((value) => value.trim()).filter(Boolean)
+  return recipients.map((chat_id) => ({ chat_id, flow: process.env.DEFAULT_FLOW || 'residence_work' }))
 }
 
-async function sendEmail(flowId, slots, subscriptions) {
+async function sendTelegram(flowId, slots, subscriptions) {
   const flow = flows[flowId]
-  const recipients = [...new Set(subscriptions.map((subscription) => subscription.email))]
-  const body = [
+  const recipients = [...new Set(subscriptions.map((subscription) => String(subscription.chat_id)))]
+  const text = [
     `A Migri appointment may be available in Oulu for ${flow.label}.`,
     '',
     ...slots.map((slot) => `• ${slot}`),
@@ -65,12 +65,10 @@ async function sendEmail(flowId, slots, subscriptions) {
     '',
     'This alert does not reserve an appointment. Complete the booking manually on Migri.'
   ].join('\n')
-  const response = await fetch('https://api.resend.com/emails', {
-    method: 'POST',
-    headers: { Authorization: `Bearer ${process.env.RESEND_API_KEY}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ from: process.env.ALERT_FROM, to: [recipients[0]], bcc: recipients.slice(1), subject: `Migri Oulu appointment · ${flow.label}`, text: body })
-  })
-  if (!response.ok) throw new Error(`Email failed: ${response.status} ${await response.text()}`)
+  for (const chat_id of recipients) {
+    const response = await fetch(`https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}/sendMessage`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ chat_id, text }) })
+    if (!response.ok) throw new Error(`Telegram failed: ${response.status} ${await response.text()}`)
+  }
 }
 
 const subscriptions = await getSubscriptions()
@@ -83,7 +81,7 @@ for (const [flowId, group] of Object.entries(groups)) {
   const slots = await findSlots(flowId)
   const oldSlots = previous.alerts?.[flowId] || []
   const newSlots = slots.filter((slot) => !oldSlots.includes(slot))
-  if (newSlots.length > 0 && process.env.DRY_RUN !== 'true') await sendEmail(flowId, newSlots, group)
+  if (newSlots.length > 0 && process.env.DRY_RUN !== 'true') await sendTelegram(flowId, newSlots, group)
   if (newSlots.length > 0) console.log(`${process.env.DRY_RUN === 'true' ? 'Dry run — ' : ''}${flowId}: ${newSlots.join(' | ')}`)
   else console.log(`${flowId}: no new slots; visible slots: ${slots.length}`)
   alerts[flowId] = slots

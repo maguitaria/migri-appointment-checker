@@ -39,22 +39,12 @@ fetch(`state.json?ts=${Date.now()}`)
 
 subscribeForm?.addEventListener('submit', async (event) => {
   event.preventDefault()
-  const apiUrl = window.MIGRI_CONFIG?.API_URL
-  if (!apiUrl || apiUrl.includes('REPLACE_WITH')) {
-    if (formMessage) formMessage.textContent = 'The service is not connected yet. Add the worker URL in config.js.'
+  const bot = window.MIGRI_CONFIG?.TELEGRAM_BOT_USERNAME
+  if (!bot || bot.includes('REPLACE_WITH')) {
+    if (formMessage) formMessage.textContent = 'The Telegram bot is not connected yet. Add its username in config.js.'
     return
   }
-  const button = subscribeForm.querySelector('button')
-  if (button) button.disabled = true
-  try {
-    const response = await fetch(`${apiUrl}/subscribe`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: subscribeForm.email.value, location: subscribeForm.location.value, flow: subscribeForm.flow.value }) })
-    const result = await response.json()
-    if (!response.ok) throw new Error(result.error || 'Could not subscribe')
-    subscribeForm.reset()
-    if (formMessage) formMessage.textContent = result.message
-  } catch (error) {
-    if (formMessage) formMessage.textContent = error.message
-  } finally {
-    if (button) button.disabled = false
-  }
+  const flow = subscribeForm.flow.value
+  window.open(`https://t.me/${bot}?start=${encodeURIComponent(flow)}`, '_blank', 'noopener,noreferrer')
+  if (formMessage) formMessage.textContent = 'Telegram opened. Press Start in the bot to activate alerts.'
 })

@@ -14,19 +14,17 @@
       <section class="hero">
         <div class="kicker"><i></i> Appointment availability</div>
         <h1>Find a Migri time in Oulu.</h1>
-        <p>A small background service checks Migri for you, then this dashboard shows the latest result. When a time appears, everyone on the email list gets the same alert.</p>
+        <p>A small background service checks Migri for you, then sends a Telegram alert when a new time appears.</p>
         <div class="actions"><a class="button dark" href="https://migri.vihta.com/public/migri/#/home" target="_blank" rel="noreferrer">Open Migri booking <b>↗</b></a><a class="text-link" href="#checker">Check the flow <b>↓</b></a></div>
       </section>
 
       <section class="subscribe card" id="subscribe">
         <header class="card-head"><div><small>Join the alert list</small><h2>We’ll watch Oulu for you.</h2></div><strong class="step">02 <em>/ 04</em></strong></header>
-        <p class="subscribe-copy">Choose the reason for your appointment and add your email. We’ll only write when a new time appears.</p>
+        <p class="subscribe-copy">Choose the location and reason, then open Telegram to start the free alert bot. Send <code>/stop</code> any time to unsubscribe.</p>
         <form id="subscribe-form">
-          <label>Email address<input id="email" name="email" type="email" autocomplete="email" placeholder="you@example.com" required /></label>
           <label>Where do you want to visit?<select id="location" name="location"><option value="Oulu">Oulu · Oulun palvelupiste</option></select></label>
           <label>What are you booking?<select id="flow" name="flow"><option value="residence_work">Residence permit · Work</option><option value="residence_family">Residence permit · Family</option><option value="residence_study">Residence permit · Study</option><option value="residence_permanent">Residence permit · Permanent</option></select></label>
-          <label class="consent"><input type="checkbox" required /> I agree to receive availability alerts for this selected flow.</label>
-          <button class="button accent" type="submit">Start monitoring <b>→</b></button>
+          <button class="button accent" type="submit">Continue in Telegram <b>↗</b></button>
           <p class="form-message" id="form-message" role="status"></p>
         </form>
       </section>
@@ -46,7 +44,7 @@
 
       <section class="result" id="result" aria-live="polite"><div class="result-head"><small>Last verified snapshot</small><span>7 September 2026 · Oulu</span></div><div class="result-body"><div class="empty">—</div><div><h2>No times visible right now</h2><p>The selected Oulu flow did not show an open slot in the current week. Migri releases times regularly, so checking again later can help.</p></div></div><footer>Result for <b>Oulu · 1 person</b><a href="https://migri.vihta.com/public/migri/#/home" target="_blank" rel="noreferrer">Check the official service <b>↗</b></a></footer></section>
 
-      <section class="notes"><article><span>01</span><h3>Why a background runner?</h3><p>A website only works while someone opens it. The runner keeps checking even when every browser tab is closed.</p></article><article><span>02</span><h3>One alert for everyone</h3><p>The worker compares each check with the previous result and emails the group only when a new time appears.</p></article><article><span>03</span><h3>Safe by design</h3><p>It reads availability only. Booking, personal data, and the final decision stay with the person who opens Migri.</p></article></section>
+      <section class="notes"><article><span>01</span><h3>Why a background runner?</h3><p>A website only works while someone opens it. The runner keeps checking even when every browser tab is closed.</p></article><article><span>02</span><h3>One alert for everyone</h3><p>The worker compares each check with the previous result and sends a Telegram message only when a new time appears.</p></article><article><span>03</span><h3>Safe by design</h3><p>It reads availability only. Booking, personal data, and the final decision stay with the person who opens Migri.</p></article></section>
     </main>
     <script src="app.js"></script>
   </body>
