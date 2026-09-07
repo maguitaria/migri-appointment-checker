@@ -34,6 +34,7 @@ async function findSlots(browser, locationId, flowId) {
 
   try {
     await page.goto(BOOKING_URL, { waitUntil: 'domcontentloaded', timeout: 45_000 })
+    await page.waitForTimeout(700)
     await page.getByRole('link', { name: 'Varaa uusi aika' }).click()
     await page.getByRole('button', { name: 'Valitse palvelukategoria' }).click()
     await page.getByRole('option', { name: flow.category }).click()
@@ -45,9 +46,10 @@ async function findSlots(browser, locationId, flowId) {
     await page.waitForTimeout(1_500)
 
     const slots = []
-    const weekCount = await page.locator('a.week-indicatorsLink').count()
+    const weekLinks = page.locator('a.week-indicatorsLink:visible')
+    const weekCount = await weekLinks.count()
     for (let weekIndex = 0; weekIndex < weekCount; weekIndex += 1) {
-      await page.locator('a.week-indicatorsLink').nth(weekIndex).click()
+      await weekLinks.nth(weekIndex).click()
       await page.waitForTimeout(450)
       const buttons = await page.locator('button[aria-label^="Vapaa aika"]').all()
       for (const button of buttons) {
@@ -60,6 +62,22 @@ async function findSlots(browser, locationId, flowId) {
   } finally {
     await page.close()
   }
+}
+
+async function findSlotsWithRetry(browser, locationId, flowId) {
+  let lastError
+  for (let attempt = 1; attempt <= 2; attempt += 1) {
+    try {
+      return await findSlots(browser, locationId, flowId)
+    } catch (error) {
+      lastError = error
+      if (attempt < 2) {
+        console.error(`Retrying ${locationId}/${flowId} after a transient browser error.`)
+        await new Promise((resolve) => setTimeout(resolve, 1_500))
+      }
+    }
+  }
+  throw lastError
 }
 
 async function getSubscriptions() {
@@ -122,18 +140,14 @@ try {
     if (!locations[locationId]) continue
     const flowIds = Object.keys(flows)
     const foundByFlow = []
-    for (let index = 0; index < flowIds.length; index += 2) {
-      const batch = flowIds.slice(index, index + 2)
-      const results = await Promise.allSettled(batch.map((flowId) => findSlots(browser, locationId, flowId)))
-      results.forEach((result, resultIndex) => {
-        const flowId = batch[resultIndex]
-        if (result.status === 'fulfilled') foundByFlow.push({ flowId, slots: result.value })
-        else {
-          const message = result.reason instanceof Error ? result.reason.message : String(result.reason)
-          failures.push(`${locationId}/${flowId}: ${message}`)
-          console.error(`Scan failed for ${locationId}/${flowId}: ${message}`)
-        }
-      })
+    for (const flowId of flowIds) {
+      try {
+        foundByFlow.push({ flowId, slots: await findSlotsWithRetry(browser, locationId, flowId) })
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error)
+        failures.push(`${locationId}/${flowId}: ${message}`)
+        console.error(`Scan failed for ${locationId}/${flowId}: ${message}`)
+      }
     }
 
     const oldSlots = previous.alerts?.[locationId] || []

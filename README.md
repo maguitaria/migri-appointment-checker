@@ -130,7 +130,7 @@ https://YOUR_GITHUB_USERNAME.github.io/migri-appointment-checker/
 
 ### 6. Start monitoring
 
-The `Check Migri appointments every 15 minutes` workflow runs every 15 minutes for every supported location. It stores the last result in `state.json`, so the same slot is not sent repeatedly. Runs use one shared browser and two permit reasons at a time; if a single office check fails, its last known results are kept instead of being erased.
+The `Check Migri appointments every 15 minutes` workflow runs every 15 minutes for every supported location. It stores the last result in `state.json`, so the same slot is not sent repeatedly. Checks use one shared browser and one permit reason at a time, with one retry for transient page failures; if an office check still fails, its last known results are kept instead of being erased.
 
 For local development:
 
