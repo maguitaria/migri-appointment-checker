@@ -42,6 +42,18 @@ async function handleTelegramUpdate(update, env) {
     return
   }
 
+  if (text.startsWith('/help')) {
+    await telegram(env, 'sendMessage', { chat_id: chatId, text: 'Choose a location on the website and press Start in Telegram. Use /status to see your active alerts. Use /stop to unsubscribe.' })
+    return
+  }
+
+  if (text.startsWith('/status')) {
+    const { results } = await env.DB.prepare('SELECT location FROM telegram_subscriptions WHERE chat_id = ? AND active = 1 ORDER BY location').bind(chatId).all()
+    const locationsText = results.length ? results.map((row) => `• ${row.location}`).join('\n') : 'No active alerts.'
+    await telegram(env, 'sendMessage', { chat_id: chatId, text: `Your active Migri alerts:\n${locationsText}\n\nThe checker runs hourly. Use /stop to unsubscribe.` })
+    return
+  }
+
   if (!text.startsWith('/start')) return
   const payload = text.split(/\s+/)[1] || 'Oulu'
   const [location] = payload.split(':')
@@ -74,10 +86,12 @@ export default {
       return json(results)
     }
 
-    if (url.pathname === '/internal/telegram/setup' && request.method === 'POST') {
-      if (!isAdmin(request, env)) return json({ error: 'Unauthorized' }, 401)
-      const result = await telegram(env, 'setWebhook', { url: `${new URL(request.url).origin}/telegram/webhook`, secret_token: env.TELEGRAM_WEBHOOK_SECRET, allowed_updates: ['message'] })
-      return json({ ok: result.ok, webhook: `${new URL(request.url).origin}/telegram/webhook` })
+  if (url.pathname === '/internal/telegram/setup' && request.method === 'POST') {
+    if (!isAdmin(request, env)) return json({ error: 'Unauthorized' }, 401)
+      const webhook = `${new URL(request.url).origin}/telegram/webhook`
+      const result = await telegram(env, 'setWebhook', { url: webhook, secret_token: env.TELEGRAM_WEBHOOK_SECRET, allowed_updates: ['message'] })
+      const commands = await telegram(env, 'setMyCommands', { commands: [{ command: 'start', description: 'activate alerts from the website' }, { command: 'status', description: 'show active alert locations' }, { command: 'stop', description: 'stop all alerts' }, { command: 'help', description: 'show instructions' }] })
+      return json({ ok: result.ok && commands.ok, webhook, commands: commands.ok })
     }
 
     if (url.pathname === '/internal/telegram/status' && request.method === 'GET') {

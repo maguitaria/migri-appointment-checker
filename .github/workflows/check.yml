@@ -1,6 +1,10 @@
 name: Check Migri appointments hourly
 
 on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - state.json
   workflow_dispatch:
   schedule:
     - cron: '17 * * * *'
@@ -9,6 +13,10 @@ permissions:
   contents: write
   pages: write
   id-token: write
+
+concurrency:
+  group: migri-check
+  cancel-in-progress: false
 
 jobs:
   check:

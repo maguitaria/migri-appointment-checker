@@ -100,8 +100,9 @@ If the URL is empty or different, run `npm run setup:telegram` again.
 3. Click **Get ... alerts in Telegram**.
 4. In Telegram, press **Start**.
 5. The bot must reply with a subscription confirmation.
-6. If it replies, the user is stored for that location.
-7. Send `/stop` to test unsubscribe.
+6. Send `/status`. The bot must list the selected location.
+7. Send `/help` to see the instructions.
+8. Send `/stop` to test unsubscribe.
 
 If Start does nothing, run `npm run check:telegram` before changing code. The issue is the webhook URL, Worker secret, or Telegram bot token—not the website button.
 
@@ -118,6 +119,8 @@ MONITOR_API_KEY=the_same_value_used_for_the_Worker_secret
 Then open **Actions → Check Migri appointments hourly → Run workflow**.
 
 The runner checks every hour, records date/time/location/reason, and sends a Telegram message only for newly seen slots. Each Telegram message has an **Open Migri booking now** button.
+
+The checker also runs once whenever code is pushed to `main`. Its own `state.json` update is excluded, so it cannot trigger itself repeatedly.
 
 ## 8. What users need to do
 
