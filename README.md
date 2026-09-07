@@ -73,6 +73,24 @@ npm run check:telegram
 
 The expected webhook URL is `https://migri-appointment-api.mglushen22.workers.dev/telegram/webhook` for the current deployment. Telegram should show that exact URL and no recent error. The Worker CORS origin must be the site origin (`https://maguitaria.github.io`), not the repository path.
 
+The admin can configure and inspect the webhook without revealing the bot token. Replace `MONITOR_API_KEY` with the same secret used by GitHub Actions:
+
+```sh
+curl -X POST 'https://migri-appointment-api.mglushen22.workers.dev/internal/telegram/setup' \
+  -H 'Authorization: Bearer MONITOR_API_KEY'
+
+curl 'https://migri-appointment-api.mglushen22.workers.dev/internal/telegram/status' \
+  -H 'Authorization: Bearer MONITOR_API_KEY'
+```
+
+Or put `SUBSCRIPTION_API_URL` and `MONITOR_API_KEY` in local `.env` and run:
+
+```sh
+npm run setup:telegram
+```
+
+The status response should show the Worker webhook URL and no `last_error_message`. After that, open the bot and press **Start** again. It should confirm the selected location.
+
 Update the public website configuration:
 
 ```js
@@ -134,7 +152,7 @@ Use either GitHub Actions or `npm run runner`, not both for the same bot subscri
 
 The website is a public control panel. A user selects a location, then opens the shared Telegram bot. The bot stores only the Telegram chat ID, selected location, and active status in the private D1 database. The public site shows only aggregate watcher counts.
 
-The scheduled runner checks all configured residence-permit flows for every supported location once per hour, combines and deduplicates the visible times, and compares them with the previous check. A new time is sent once to subscribers watching that location; it is not repeated every hour while the same slot remains visible. The public page lists the latest combined snapshot. The service never reserves an appointment and never enters identity or application data.
+The scheduled runner checks all configured residence-permit flows and the next ten visible Migri weeks for every supported location once per hour. Each result includes the exact date, time, location, and reason that produced it. Results are combined and deduplicated, then compared with the previous check. A new time is sent once to subscribers watching that location; it is not repeated every hour while the same slot remains visible. The public page lists the latest combined snapshot. The service never reserves an appointment and never enters identity or application data.
 
 ## User flow
 

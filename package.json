@@ -7,7 +7,8 @@
   "scripts": {
     "check": "node --env-file=.env watcher.mjs",
     "runner": "node --env-file=.env runner.mjs",
-    "check:telegram": "node --env-file=.env scripts/check-telegram.mjs"
+    "check:telegram": "node --env-file=.env scripts/check-telegram.mjs",
+    "setup:telegram": "node --env-file=.env scripts/setup-telegram.mjs"
   },
   "dependencies": {
     "playwright": "^1.55.0"

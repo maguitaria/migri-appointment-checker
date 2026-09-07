@@ -36,11 +36,21 @@ async function findSlots(locationId, flowId) {
     await page.getByRole('button', { name: 'Valitse toimipiste' }).click()
     await page.getByRole('option', { name: location.office }).click()
     await page.getByRole('button', { name: 'Hae vapaat ajat' }).click()
-    await page.waitForTimeout(2_000)
+    await page.waitForTimeout(1_500)
 
-    const lines = (await page.locator('body').innerText()).split('\n').map((line) => line.trim()).filter(Boolean)
-    const slots = lines.filter((line) => /\b(?:[01]?\d|2[0-3]):\d{2}\b/.test(line))
-    return [...new Set(slots)]
+    const slots = []
+    const weekCount = await page.locator('a.week-indicatorsLink').count()
+    for (let weekIndex = 0; weekIndex < weekCount; weekIndex += 1) {
+      await page.locator('a.week-indicatorsLink').nth(weekIndex).click()
+      await page.waitForTimeout(450)
+      const buttons = await page.locator('button[aria-label^="Vapaa aika"]').all()
+      for (const button of buttons) {
+        const ariaLabel = await button.getAttribute('aria-label')
+        const match = ariaLabel?.match(/(\d{2}\.\d{2}\.\d{4}).*?(\d{1,2})\.(\d{2})$/)
+        if (match) slots.push({ date: match[1], time: `${match[2].padStart(2, '0')}:${match[3]}` })
+      }
+    }
+    return [...new Map(slots.map((slot) => [`${slot.date}|${slot.time}`, slot])).values()]
   } finally {
     await browser.close()
   }
@@ -62,18 +72,24 @@ async function getSubscriptions() {
 async function sendTelegram(locationId, slots, subscriptions) {
   const location = locations[locationId]
   const recipients = [...new Set(subscriptions.map((subscription) => String(subscription.chat_id)))]
-  const text = [
-    `A Migri appointment may be available in ${location.label}.`,
-    '',
-    ...slots.map((slot) => `• ${slot}`),
-    '',
-    `Open the official booking service now: ${BOOKING_URL}`,
-    '',
-    'This alert does not reserve an appointment. Complete the booking manually on Migri.'
-  ].join('\n')
+  const lines = slots.map((slot) => `• ${slot.date} ${slot.time} — ${slot.flow}`)
+  const chunks = []
+  let chunk = []
+  for (const line of lines) {
+    if (chunk.join('\n').length + line.length + 1 > 3_200 && chunk.length) {
+      chunks.push(chunk)
+      chunk = []
+    }
+    chunk.push(line)
+  }
+  if (chunk.length) chunks.push(chunk)
   for (const chat_id of recipients) {
-    const response = await fetch(`https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}/sendMessage`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ chat_id, text }) })
-    if (!response.ok) throw new Error(`Telegram failed: ${response.status} ${await response.text()}`)
+    for (let index = 0; index < chunks.length; index += 1) {
+      const text = [`Migri availability in ${location.label} · part ${index + 1}/${chunks.length}`, '', ...chunks[index], '', 'This alert does not reserve an appointment. Complete the booking manually on Migri.'].join('\n')
+      const response = await fetch(`https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}/sendMessage`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ chat_id, text, reply_markup: { inline_keyboard: [[{ text: 'Open Migri booking now', url: BOOKING_URL }]] } }) })
+      if (!response.ok) throw new Error(`Telegram failed: ${response.status} ${await response.text()}`)
+      await new Promise((resolve) => setTimeout(resolve, 75))
+    }
   }
 }
 
@@ -88,14 +104,16 @@ for (const [locationId, group] of Object.entries(groups)) {
   if (!locations[locationId]) continue
   const foundByFlow = []
   for (const flowId of Object.keys(flows)) foundByFlow.push({ flowId, slots: await findSlots(locationId, flowId) })
-  const slots = [...new Set(foundByFlow.flatMap(({ slots }) => slots))]
+  const slots = foundByFlow.flatMap(({ flowId, slots: flowSlots }) => flowSlots.map((slot) => ({ ...slot, flow: flows[flowId].label, flowId })))
+  const uniqueSlots = [...new Map(slots.map((slot) => [`${slot.date}|${slot.time}|${slot.flowId}`, slot])).values()]
   const oldSlots = previous.alerts?.[locationId] || []
-  const newSlots = slots.filter((slot) => !oldSlots.includes(slot))
+  const oldKeys = new Set(oldSlots.map((slot) => typeof slot === 'string' ? `${slot}|legacy` : `${slot.date}|${slot.time}|${slot.flowId}`))
+  const newSlots = uniqueSlots.filter((slot) => !oldKeys.has(`${slot.date}|${slot.time}|${slot.flowId}`))
   if (newSlots.length > 0 && group.length > 0 && process.env.DRY_RUN !== 'true') await sendTelegram(locationId, newSlots, group)
-  if (newSlots.length > 0) console.log(`${process.env.DRY_RUN === 'true' ? 'Dry run — ' : ''}${locationId}: ${newSlots.join(' | ')}`)
-  else console.log(`${locationId}: no new slots; visible slots: ${slots.length}`)
-  alerts[locationId] = slots
-  availableSlots.push(...slots.map((time) => ({ location: locationId, time })))
+  if (newSlots.length > 0) console.log(`${process.env.DRY_RUN === 'true' ? 'Dry run — ' : ''}${locationId}: ${newSlots.map((slot) => `${slot.date} ${slot.time} — ${slot.flow}`).join(' | ')}`)
+  else console.log(`${locationId}: no new slots; visible slots: ${uniqueSlots.length}`)
+  alerts[locationId] = uniqueSlots
+  availableSlots.push(...uniqueSlots.map(({ date, time, flow }) => ({ location: locationId, date, time, flow })))
 }
 
-writeFileSync(stateFile, JSON.stringify({ status: 'ok', alerts, slots: availableSlots.map(({ time }) => time), availableSlots, checkedAt: new Date().toISOString(), check: 'All residence-permit flows for all supported locations', bookingUrl: BOOKING_URL }, null, 2))
+writeFileSync(stateFile, JSON.stringify({ status: 'ok', alerts, slots: availableSlots.map(({ date, time, flow }) => `${date} ${time} — ${flow}`), availableSlots, checkedAt: new Date().toISOString(), check: 'All residence-permit flows for all supported locations', bookingUrl: BOOKING_URL }, null, 2))

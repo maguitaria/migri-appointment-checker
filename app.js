@@ -3,6 +3,7 @@ const lastCheckedText = document.querySelector('#last-checked')
 const subscribeForm = document.querySelector('#subscribe-form')
 const formMessage = document.querySelector('#form-message')
 const watcherSummary = document.querySelector('#watcher-summary')
+const escapeHtml = (value) => String(value ?? '').replace(/[&<>"']/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[character])
 
 fetch(`state.json?ts=${Date.now()}`)
   .then((response) => (response.ok ? response.json() : null))
@@ -12,7 +13,7 @@ fetch(`state.json?ts=${Date.now()}`)
     if (lastCheckedText && state.checkedAt) lastCheckedText.textContent = `Last checked ${new Date(state.checkedAt).toLocaleString()}`
     const slotList = document.querySelector('#slot-list')
     const slots = state.availableSlots || []
-    if (slotList) slotList.innerHTML = slots.length ? slots.map(({ location, time }) => `<li><b>${time}</b><span>${location}</span></li>`).join('') : '<li class="empty-slot">No times visible in the latest check.</li>'
+    if (slotList) slotList.innerHTML = slots.length ? slots.map(({ location, date, time, flow }) => `<li><b>${escapeHtml(date || 'Date pending')} · ${escapeHtml(time)}</b><span>${escapeHtml(location)} · ${escapeHtml(flow || 'Reason pending')}</span></li>`).join('') : '<li class="empty-slot">No times visible in the latest check.</li>'
   })
   .catch(() => {})
 
