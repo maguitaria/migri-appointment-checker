@@ -1,6 +1,8 @@
 {
   "name": "migri-oulu-appointment-checker",
   "private": true,
+  "license": "MIT",
+  "repository": "https://github.com/maguitaria/migri-appointment-checker",
   "type": "module",
   "scripts": {
     "check": "node --env-file=.env watcher.mjs"

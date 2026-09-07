@@ -2,6 +2,8 @@
 
 Standalone static implementation plus an optional hourly watcher for checking the Migri appointment flow for Oulu.
 
+Open-source project under the MIT License. The watcher is intentionally read-only: it checks public appointment availability and sends alerts, but never submits a booking.
+
 ## Run locally
 
 Open `index.html` directly in a browser, or serve the folder with any static server:
@@ -22,3 +24,7 @@ The watcher follows the official flow for `Oleskelulupa → 1. Työ → Oulu →
 4. Run one check: `npm run check`.
 
 The included GitHub Actions workflow runs it hourly. Add `RESEND_API_KEY`, `ALERT_FROM`, and `ALERT_TO` as repository secrets, then enable Actions. The workflow is intentionally read-only and does not bypass CAPTCHA or other booking controls.
+
+## Required keys
+
+No AI key is required. The only external credential is a [Resend](https://resend.com) API key for sending email. Keep it in GitHub Actions secrets or a local `.env` file; never commit it.
