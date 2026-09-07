@@ -1,0 +1,11 @@
+name = "migri-appointment-api"
+main = "src/index.js"
+compatibility_date = "2026-09-07"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "migri-subscriptions"
+database_id = "fa3d1e0c-4c51-479b-99f8-ea5202e65b86"
+
+[vars]
+SITE_ORIGIN = "https://maguitaria.github.io/migri-appointment-checker"
