@@ -6,6 +6,8 @@
   "type": "module",
   "scripts": {
     "check": "node --env-file-if-exists=.env watcher.mjs",
+    "check:passport": "node --env-file-if-exists=.env passport-watcher.mjs",
+    "check:all": "node --env-file-if-exists=.env check-all.mjs",
     "runner": "node --env-file-if-exists=.env runner.mjs",
     "check:telegram": "node --env-file-if-exists=.env scripts/check-telegram.mjs",
     "setup:telegram": "node --env-file-if-exists=.env scripts/setup-telegram.mjs"

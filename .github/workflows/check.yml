@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths-ignore:
       - state.json
+      - passport-state.json
   workflow_dispatch:
   schedule:
     - cron: '*/15 * * * *'
@@ -30,7 +31,7 @@ jobs:
           cache: npm
       - run: npm install
       - run: npx playwright install --with-deps chromium
-      - run: npm run check
+      - run: npm run check:all
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           ALERT_CHAT_IDS: ${{ secrets.ALERT_CHAT_IDS }}
@@ -45,4 +46,4 @@ jobs:
       - uses: stefanzweifel/git-auto-commit-action@v6
         with:
           commit_message: 'Update runner status'
-          file_pattern: state.json
+          file_pattern: state.json passport-state.json

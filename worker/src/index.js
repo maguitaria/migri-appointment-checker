@@ -13,6 +13,7 @@ const locations = {
 const allowedLocations = new Set(Object.keys(locations))
 const publicSite = 'https://maguitaria.github.io/migri-appointment-checker/'
 const bookingUrl = 'https://migri.vihta.com/public/migri/#/home'
+const passportBookingUrl = 'https://berlin.pasport.org.ua/solutions/e-queue'
 const authorityUrls = {
   en: 'https://migri.fi/en',
   fi: 'https://migri.fi/etusivu',
@@ -106,6 +107,13 @@ function localizedFlow(flow, language) {
   return flowLabels[language]?.[flow] || flow
 }
 
+const passportSubscriptionMessages = {
+  en: 'You are subscribed to Passport Service Berlin availability. I will send newly detected service, date, time, and slot-count updates automatically.',
+  fi: 'Olet tilannut Berliinin Passipalvelun saatavuusilmoitukset. Lähetän automaattisesti uudet palvelu-, päivä-, aika- ja paikkamäärätiedot.',
+  ru: 'Вы подписались на уведомления о доступности Паспортного сервиса в Берлине. Я буду автоматически отправлять новые услуги, даты, время и количество мест.',
+  uk: 'Ви підписалися на сповіщення про доступність Паспортного сервісу в Берліні. Я автоматично надсилатиму нові послуги, дати, час і кількість місць.'
+}
+
 function headers(origin = '*') {
   return { 'Access-Control-Allow-Origin': origin, 'Access-Control-Allow-Headers': 'content-type, authorization, x-telegram-bot-api-secret-token', 'Access-Control-Allow-Methods': 'GET, POST, OPTIONS', 'Content-Type': 'application/json' }
 }
@@ -120,10 +128,11 @@ async function telegram(env, method, body) {
   return response.json()
 }
 
-async function sendCurrentAvailability(env, chatId, location, language) {
+async function sendCurrentAvailability(env, chatId, location, language, flow) {
   const copy = messages[language]
+  const isPassport = flow === 'passport_berlin'
   try {
-    const response = await fetch(`${publicSite}state.json?ts=${Date.now()}`)
+    const response = await fetch(`${publicSite}${isPassport ? 'passport-state.json' : 'state.json'}?ts=${Date.now()}`)
     if (!response.ok) throw new Error(`state.json returned ${response.status}`)
     const state = await response.json()
     const slots = (state.availableSlots || []).filter((slot) => slot.location === location)
@@ -131,15 +140,15 @@ async function sendCurrentAvailability(env, chatId, location, language) {
     const lines = shown.map((slot) => `• ${slot.date} ${slot.time} — ${localizedFlow(slot.flow || 'Migri appointment', language)}`)
     const fullListUrl = `${publicSite}?location=${encodeURIComponent(location)}#slots`
     const text = [
-      copy.currentTitle(location),
+      isPassport ? `Passport Service Berlin — ${language === 'fi' ? 'saatavilla olevat ajat' : language === 'ru' ? 'доступные записи' : language === 'uk' ? 'доступні записи' : 'current available times'}` : copy.currentTitle(location),
       '',
       copy.currentCount(slots.length),
       ...lines,
       '',
       slots.length > shown.length ? copy.currentMore(fullListUrl) : copy.currentLink(fullListUrl),
       copy.currentFuture,
-      `Migri: ${authorityUrls[language]}`,
-      `Booking: ${bookingUrl}`
+      isPassport ? `Official Passport Service: ${passportBookingUrl}` : `Migri: ${authorityUrls[language]}`,
+      isPassport ? `Booking: ${passportBookingUrl}` : `Booking: ${bookingUrl}`
     ].join('\n')
     await telegram(env, 'sendMessage', { chat_id: chatId, text, disable_web_page_preview: true })
   } catch (error) {
@@ -167,30 +176,34 @@ async function handleTelegramUpdate(update, env) {
   }
 
   if (text.startsWith('/help')) {
-    await telegram(env, 'sendMessage', { chat_id: chatId, text: copy.help(authorityUrls[language]) })
+    await telegram(env, 'sendMessage', { chat_id: chatId, text: `${copy.help(authorityUrls[language])}\n\nPassport Service Berlin: ${passportBookingUrl}` })
     return
   }
 
   if (text.startsWith('/status')) {
     const { results } = await env.DB.prepare('SELECT location FROM telegram_subscriptions WHERE chat_id = ? AND active = 1 ORDER BY location').bind(chatId).all()
-    const locationsText = results.length ? results.map((row) => `• ${row.location}`).join('\n') : 'No active alerts.'
+    const locationsText = results.length ? results.map((row) => row.flow === 'passport_berlin' ? '• Passport Service Berlin' : `• ${row.location}`).join('\n') : 'No active alerts.'
     await telegram(env, 'sendMessage', { chat_id: chatId, text: copy.status(locationsText) })
     return
   }
 
   if (!text.startsWith('/start')) return
   const payload = text.split(/\s+/)[1] || 'Oulu'
-  const [location] = payload.split(':')
-  const flow = 'all'
-  if (!allowedLocations.has(location)) {
+  const isPassport = payload === 'passport_berlin'
+  const location = isPassport ? 'Berlin' : payload.split(':')[0]
+  const flow = isPassport ? 'passport_berlin' : 'all'
+  if (!isPassport && !allowedLocations.has(location)) {
     await telegram(env, 'sendMessage', { chat_id: chatId, text: copy.invalid })
     return
   }
 
   const id = crypto.randomUUID()
   await env.DB.prepare(`INSERT INTO telegram_subscriptions (id, chat_id, username, location, flow, active, created_at) VALUES (?, ?, ?, ?, ?, 1, datetime('now')) ON CONFLICT(chat_id, location, flow) DO UPDATE SET active = 1, username = excluded.username`).bind(id, chatId, message.from?.username || '', location, flow).run()
-    await telegram(env, 'sendMessage', { chat_id: chatId, text: `${copy.subscribed(location)}\n\nMigri: ${authorityUrls[language]}\nBooking: ${bookingUrl}\n\nUse /help for instructions.` })
-    await sendCurrentAvailability(env, chatId, location, language)
+    const subscriptionText = isPassport ? passportSubscriptionMessages[language] : copy.subscribed(location)
+    const authorityText = isPassport ? `Passport Service: ${passportBookingUrl}` : `Migri: ${authorityUrls[language]}`
+    const bookingText = isPassport ? `Booking: ${passportBookingUrl}` : `Booking: ${bookingUrl}`
+    await telegram(env, 'sendMessage', { chat_id: chatId, text: `${subscriptionText}\n\n${authorityText}\n${bookingText}\n\nUse /help for instructions.` })
+    await sendCurrentAvailability(env, chatId, location, language, flow)
 }
 
 export default {
