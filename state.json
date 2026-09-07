@@ -1,0 +1,22 @@
+{
+  "status": "ok",
+  "alerts": {
+    "Oulu": [],
+    "Rovaniemi": [
+      "15:15"
+    ],
+    "Vaasa": []
+  },
+  "slots": [
+    "15:15"
+  ],
+  "availableSlots": [
+    {
+      "location": "Rovaniemi",
+      "time": "15:15"
+    }
+  ],
+  "checkedAt": "2026-09-07T08:50:49.474Z",
+  "check": "All residence-permit flows for all supported locations",
+  "bookingUrl": "https://migri.vihta.com/public/migri/#/home"
+}

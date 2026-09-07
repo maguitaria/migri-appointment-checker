@@ -98,4 +98,4 @@ for (const [locationId, group] of Object.entries(groups)) {
   availableSlots.push(...slots.map((time) => ({ location: locationId, time })))
 }
 
-writeFileSync(stateFile, JSON.stringify({ status: 'ok', alerts, slots: availableSlots.map(({ time }) => time), availableSlots, checkedAt: new Date().toISOString(), check: 'All residence-permit flows for subscribed locations', bookingUrl: BOOKING_URL }, null, 2))
+writeFileSync(stateFile, JSON.stringify({ status: 'ok', alerts, slots: availableSlots.map(({ time }) => time), availableSlots, checkedAt: new Date().toISOString(), check: 'All residence-permit flows for all supported locations', bookingUrl: BOOKING_URL }, null, 2))
