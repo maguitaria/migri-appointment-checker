@@ -1,17 +1,18 @@
-# Migri Oulu Telegram notification service
+# Migri Telegram appointment notification service
 
-Public website + background checker for Migri appointments in Oulu.
+Public website + background checker for Migri appointments.
 
 The service:
 
-- lets a visitor choose an Oulu service and reason;
+- lets a visitor choose Oulu, Rovaniemi, or Vaasa and a reason;
 - opens the Telegram bot with that preference;
 - stores the user’s Telegram chat ID privately in Cloudflare D1;
-- checks Migri with a read-only browser worker every hour;
+- checks each selected location with a read-only browser worker every hour;
 - sends a Telegram alert when a new time appears;
+- shows an anonymized count of active watchers per location;
 - never enters personal data or books an appointment.
 
-Current location: **Oulu**. Current reasons: work, family, study, and permanent residence.
+Current locations: **Oulu, Rovaniemi, and Vaasa**. Current reasons: work, family, study, and permanent residence.
 
 ## What the admin owns
 
@@ -27,7 +28,7 @@ You need:
 
 No AI key, email domain, or paid email provider is required.
 
-### 1. Create the Telegram bot
+### 1. Create the single Telegram bot for the service
 
 In Telegram, open `@BotFather`:
 
@@ -35,7 +36,7 @@ In Telegram, open `@BotFather`:
 /newbot
 ```
 
-Save the bot username and token privately. The username is public; the token is secret.
+Save the bot username and token privately. The username is public; the token is secret. You do not need one bot per user: the administrator owns one bot, and all users subscribe privately to that same bot.
 
 ### 2. Deploy the Worker API
 
@@ -102,7 +103,7 @@ https://YOUR_GITHUB_USERNAME.github.io/migri-appointment-checker/
 
 ### 6. Start monitoring
 
-The `Check Migri Oulu appointments` workflow runs hourly. It stores the last result in `state.json`, so the same slot is not sent repeatedly.
+The `Check Migri appointments` workflow runs hourly for every subscribed location. It stores the last result in `state.json`, so the same slot is not sent repeatedly.
 
 For local development:
 
@@ -121,10 +122,16 @@ npm run runner
 
 Use either GitHub Actions or `npm run runner`, not both for the same bot subscribers.
 
+## How it works
+
+The website is a public control panel. A user selects a location and reason, then opens the shared Telegram bot. The bot stores only the Telegram chat ID, selected location, selected reason, and active status in the private D1 database. The public site shows only aggregate watcher counts.
+
+The scheduled runner loads active subscriptions, groups them by location and reason, checks the official Migri booking flow, and compares visible times with the previous check. A new time is sent to matching Telegram subscribers. The service never reserves an appointment and never enters identity or application data.
+
 ## User flow
 
 1. Visitor opens the website.
-2. Visitor selects Oulu and a residence-permit reason.
+2. Visitor selects a location and a residence-permit reason.
 3. Visitor clicks **Continue in Telegram**.
 4. Visitor presses **Start** in the bot.
 5. The bot confirms the subscription.

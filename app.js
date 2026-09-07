@@ -6,6 +6,7 @@ const statusText = document.querySelector('#runner-status')
 const lastCheckedText = document.querySelector('#last-checked')
 const subscribeForm = document.querySelector('#subscribe-form')
 const formMessage = document.querySelector('#form-message')
+const watcherSummary = document.querySelector('#watcher-summary')
 
 form?.addEventListener('submit', (event) => {
   event.preventDefault()
@@ -17,8 +18,15 @@ form?.addEventListener('submit', (event) => {
 applicantSelect?.addEventListener('change', () => {
   if (resultFooter) {
     const count = applicantSelect.value.startsWith('Family') ? 'family appointment' : '1 person'
-    resultFooter.firstChild.textContent = `Result for Oulu · ${count} `
+    const location = document.querySelector('#office')?.value?.split(' · ')[0] || 'selected service point'
+    resultFooter.firstChild.textContent = `Result for ${location} · ${count} `
   }
+})
+
+document.querySelector('#office')?.addEventListener('change', (event) => {
+  const location = event.target.value.split(' · ')[0]
+  const selected = document.querySelector('.selected b')
+  if (selected) selected.textContent = `${location} selected`
 })
 
 fetch(`state.json?ts=${Date.now()}`)
@@ -44,7 +52,23 @@ subscribeForm?.addEventListener('submit', async (event) => {
     if (formMessage) formMessage.textContent = 'The Telegram bot is not connected yet. Add its username in config.js.'
     return
   }
+  const location = subscribeForm.location.value
   const flow = subscribeForm.flow.value
-  window.open(`https://t.me/${bot}?start=${encodeURIComponent(flow)}`, '_blank', 'noopener,noreferrer')
+  window.open(`https://t.me/${bot}?start=${encodeURIComponent(`${location}:${flow}`)}`, '_blank', 'noopener,noreferrer')
   if (formMessage) formMessage.textContent = 'Telegram opened. Press Start in the bot to activate alerts.'
 })
+
+fetch(`${window.MIGRI_CONFIG?.API_URL || ''}/public/stats?ts=${Date.now()}`)
+  .then((response) => (response.ok ? response.json() : null))
+  .then((stats) => {
+    if (!stats || !watcherSummary) return
+    const total = Number(stats.total || 0)
+    watcherSummary.textContent = `${total} ${total === 1 ? 'person is' : 'people are'} currently watching these locations`
+    for (const item of stats.locations || []) {
+      const element = document.querySelector(`[data-watchers="${item.location}"]`)
+      if (element) element.textContent = `${item.watchers} watching`
+    }
+  })
+  .catch(() => {
+    if (watcherSummary) watcherSummary.textContent = 'Watcher counts will appear when the notification service is online'
+  })

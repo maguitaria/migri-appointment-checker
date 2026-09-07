@@ -3,6 +3,11 @@ import { existsSync, readFileSync, writeFileSync } from 'node:fs'
 
 const BOOKING_URL = 'https://migri.vihta.com/public/migri/#/home'
 const stateFile = new URL('./state.json', import.meta.url)
+const locations = {
+  Oulu: { label: 'Oulu', office: 'Oulu : Oulun palvelupiste' },
+  Rovaniemi: { label: 'Rovaniemi', office: 'Rovaniemi : Rovaniemen palvelupiste' },
+  Vaasa: { label: 'Vaasa', office: 'Vaasa : Vaasan palvelupiste' }
+}
 const flows = {
   residence_work: { category: 'Oleskelulupa', service: '1. Työ', label: 'Residence permit · Work' },
   residence_family: { category: 'Oleskelulupa', service: '2. Perhe', label: 'Residence permit · Family' },
@@ -14,9 +19,10 @@ if (!process.env.TELEGRAM_BOT_TOKEN) {
   throw new Error('Set TELEGRAM_BOT_TOKEN in .env')
 }
 
-async function findSlots(flowId) {
+async function findSlots(locationId, flowId) {
+  const location = locations[locationId]
   const flow = flows[flowId]
-  if (!flow) throw new Error(`Unsupported flow: ${flowId}`)
+  if (!location || !flow) throw new Error(`Unsupported location or flow: ${locationId}/${flowId}`)
   const browser = await chromium.launch({ headless: true })
   const page = await browser.newPage()
 
@@ -28,7 +34,7 @@ async function findSlots(flowId) {
     await page.getByRole('button', { name: 'Valitse palvelu' }).click()
     await page.getByRole('option', { name: flow.service }).click()
     await page.getByRole('button', { name: 'Valitse toimipiste' }).click()
-    await page.getByRole('option', { name: 'Oulu : Oulun palvelupiste' }).click()
+    await page.getByRole('option', { name: location.office }).click()
     await page.getByRole('button', { name: 'Hae vapaat ajat' }).click()
     await page.waitForTimeout(2_000)
 
@@ -50,14 +56,15 @@ async function getSubscriptions() {
   }
 
   const recipients = (process.env.ALERT_CHAT_IDS || '').split(',').map((value) => value.trim()).filter(Boolean)
-  return recipients.map((chat_id) => ({ chat_id, flow: process.env.DEFAULT_FLOW || 'residence_work' }))
+  return recipients.map((chat_id) => ({ chat_id, location: process.env.DEFAULT_LOCATION || 'Oulu', flow: process.env.DEFAULT_FLOW || 'residence_work' }))
 }
 
-async function sendTelegram(flowId, slots, subscriptions) {
+async function sendTelegram(locationId, flowId, slots, subscriptions) {
+  const location = locations[locationId]
   const flow = flows[flowId]
   const recipients = [...new Set(subscriptions.map((subscription) => String(subscription.chat_id)))]
   const text = [
-    `A Migri appointment may be available in Oulu for ${flow.label}.`,
+    `A Migri appointment may be available in ${location.label} for ${flow.label}.`,
     '',
     ...slots.map((slot) => `• ${slot}`),
     '',
@@ -72,19 +79,23 @@ async function sendTelegram(flowId, slots, subscriptions) {
 }
 
 const subscriptions = await getSubscriptions()
-const groups = Object.groupBy ? Object.groupBy(subscriptions, (subscription) => subscription.flow) : subscriptions.reduce((result, subscription) => ({ ...result, [subscription.flow]: [...(result[subscription.flow] || []), subscription] }), {})
+const groups = Object.groupBy ? Object.groupBy(subscriptions, (subscription) => `${subscription.location || 'Oulu'}:${subscription.flow}`) : subscriptions.reduce((result, subscription) => {
+  const key = `${subscription.location || 'Oulu'}:${subscription.flow}`
+  return { ...result, [key]: [...(result[key] || []), subscription] }
+}, {})
 const previous = existsSync(stateFile) ? JSON.parse(readFileSync(stateFile, 'utf8')) : { alerts: {} }
 const alerts = {}
 
-for (const [flowId, group] of Object.entries(groups)) {
-  if (!flows[flowId]) continue
-  const slots = await findSlots(flowId)
-  const oldSlots = previous.alerts?.[flowId] || []
+for (const [key, group] of Object.entries(groups)) {
+  const [locationId, flowId] = key.split(':')
+  if (!locations[locationId] || !flows[flowId]) continue
+  const slots = await findSlots(locationId, flowId)
+  const oldSlots = previous.alerts?.[key] || []
   const newSlots = slots.filter((slot) => !oldSlots.includes(slot))
-  if (newSlots.length > 0 && process.env.DRY_RUN !== 'true') await sendTelegram(flowId, newSlots, group)
-  if (newSlots.length > 0) console.log(`${process.env.DRY_RUN === 'true' ? 'Dry run — ' : ''}${flowId}: ${newSlots.join(' | ')}`)
-  else console.log(`${flowId}: no new slots; visible slots: ${slots.length}`)
-  alerts[flowId] = slots
+  if (newSlots.length > 0 && process.env.DRY_RUN !== 'true') await sendTelegram(locationId, flowId, newSlots, group)
+  if (newSlots.length > 0) console.log(`${process.env.DRY_RUN === 'true' ? 'Dry run — ' : ''}${locationId}/${flowId}: ${newSlots.join(' | ')}`)
+  else console.log(`${locationId}/${flowId}: no new slots; visible slots: ${slots.length}`)
+  alerts[key] = slots
 }
 
-writeFileSync(stateFile, JSON.stringify({ status: 'ok', alerts, slots: Object.values(alerts).flat(), checkedAt: new Date().toISOString(), check: 'Oulu · all configured subscriptions', bookingUrl: BOOKING_URL }, null, 2))
+writeFileSync(stateFile, JSON.stringify({ status: 'ok', alerts, slots: Object.values(alerts).flat(), checkedAt: new Date().toISOString(), check: 'All subscribed locations and reasons', bookingUrl: BOOKING_URL }, null, 2))

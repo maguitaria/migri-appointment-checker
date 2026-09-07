@@ -1,5 +1,10 @@
 const allowedFlows = new Set(['residence_work', 'residence_family', 'residence_study', 'residence_permanent'])
-const allowedLocations = new Set(['Oulu'])
+const locations = {
+  Oulu: 'Oulu : Oulun palvelupiste',
+  Rovaniemi: 'Rovaniemi : Rovaniemen palvelupiste',
+  Vaasa: 'Vaasa : Vaasan palvelupiste'
+}
+const allowedLocations = new Set(Object.keys(locations))
 
 function headers(origin = '*') {
   return { 'Access-Control-Allow-Origin': origin, 'Access-Control-Allow-Headers': 'content-type, x-telegram-bot-api-secret-token', 'Access-Control-Allow-Methods': 'GET, POST, OPTIONS', 'Content-Type': 'application/json' }
@@ -28,15 +33,16 @@ async function handleTelegramUpdate(update, env) {
   }
 
   if (!text.startsWith('/start')) return
-  const flow = text.split(/\s+/)[1] || 'residence_work'
-  if (!allowedFlows.has(flow)) {
+  const payload = text.split(/\s+/)[1] || 'Oulu:residence_work'
+  const [location = 'Oulu', flow = 'residence_work'] = payload.split(':')
+  if (!allowedFlows.has(flow) || !allowedLocations.has(location)) {
     await telegram(env, 'sendMessage', { chat_id: chatId, text: 'Choose a notification from the website and use its Telegram button to subscribe.' })
     return
   }
 
   const id = crypto.randomUUID()
-  await env.DB.prepare(`INSERT INTO telegram_subscriptions (id, chat_id, username, location, flow, active, created_at) VALUES (?, ?, ?, 'Oulu', ?, 1, datetime('now')) ON CONFLICT(chat_id, location, flow) DO UPDATE SET active = 1, username = excluded.username`).bind(id, chatId, message.from?.username || '', flow).run()
-  await telegram(env, 'sendMessage', { chat_id: chatId, text: 'You are subscribed to Migri Oulu alerts. We will message you when a new time appears. Send /stop to unsubscribe.' })
+  await env.DB.prepare(`INSERT INTO telegram_subscriptions (id, chat_id, username, location, flow, active, created_at) VALUES (?, ?, ?, ?, ?, 1, datetime('now')) ON CONFLICT(chat_id, location, flow) DO UPDATE SET active = 1, username = excluded.username`).bind(id, chatId, message.from?.username || '', location, flow).run()
+  await telegram(env, 'sendMessage', { chat_id: chatId, text: `You are subscribed to Migri ${location} alerts. We will message you when a new time appears. Send /stop to unsubscribe.` })
 }
 
 export default {
@@ -55,6 +61,12 @@ export default {
       if (request.headers.get('Authorization') !== `Bearer ${env.MONITOR_API_KEY}`) return json({ error: 'Unauthorized' }, 401)
       const { results } = await env.DB.prepare('SELECT chat_id, username, location, flow FROM telegram_subscriptions WHERE active = 1').all()
       return json(results)
+    }
+
+    if (url.pathname === '/public/stats' && request.method === 'GET') {
+      const { results } = await env.DB.prepare('SELECT location, COUNT(DISTINCT chat_id) AS watchers FROM telegram_subscriptions WHERE active = 1 GROUP BY location').all()
+      const counts = Object.fromEntries(results.map((row) => [row.location, Number(row.watchers)]))
+      return json({ locations: Object.keys(locations).map((location) => ({ location, watchers: counts[location] || 0 })), total: Object.values(counts).reduce((sum, count) => sum + count, 0) }, 200, origin)
     }
 
     return json({ service: 'Migri Telegram notification service', status: 'ok' }, 200, origin)
