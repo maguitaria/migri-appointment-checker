@@ -5,6 +5,11 @@ on:
   schedule:
     - cron: '17 * * * *'
 
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
 jobs:
   check:
     runs-on: ubuntu-latest
@@ -14,11 +19,6 @@ jobs:
         with:
           node-version: 22
           cache: npm
-      - uses: actions/download-artifact@v4
-        with:
-          name: migri-state
-          path: .
-        continue-on-error: true
       - run: npm install
       - run: npx playwright install --with-deps chromium
       - run: npm run check
@@ -26,10 +26,15 @@ jobs:
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
           ALERT_FROM: ${{ secrets.ALERT_FROM }}
           ALERT_TO: ${{ secrets.ALERT_TO }}
+          SUBSCRIPTION_API_URL: ${{ secrets.SUBSCRIPTION_API_URL }}
+          MONITOR_API_KEY: ${{ secrets.MONITOR_API_KEY }}
       - uses: actions/upload-artifact@v4
-        if: always()
+        if: success()
         with:
           name: migri-state
           path: state.json
-          overwrite: true
           if-no-files-found: ignore
+      - uses: stefanzweifel/git-auto-commit-action@v6
+        with:
+          commit_message: 'Update runner status'
+          file_pattern: state.json

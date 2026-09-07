@@ -4,6 +4,8 @@ const applicantSelect = document.querySelector('#applicants')
 const resultFooter = result?.querySelector('footer')
 const statusText = document.querySelector('#runner-status')
 const lastCheckedText = document.querySelector('#last-checked')
+const subscribeForm = document.querySelector('#subscribe-form')
+const formMessage = document.querySelector('#form-message')
 
 form?.addEventListener('submit', (event) => {
   event.preventDefault()
@@ -34,3 +36,25 @@ fetch(`state.json?ts=${Date.now()}`)
     }
   })
   .catch(() => {})
+
+subscribeForm?.addEventListener('submit', async (event) => {
+  event.preventDefault()
+  const apiUrl = window.MIGRI_CONFIG?.API_URL
+  if (!apiUrl || apiUrl.includes('REPLACE_WITH')) {
+    if (formMessage) formMessage.textContent = 'The service is not connected yet. Add the worker URL in config.js.'
+    return
+  }
+  const button = subscribeForm.querySelector('button')
+  if (button) button.disabled = true
+  try {
+    const response = await fetch(`${apiUrl}/subscribe`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: subscribeForm.email.value, location: subscribeForm.location.value, flow: subscribeForm.flow.value }) })
+    const result = await response.json()
+    if (!response.ok) throw new Error(result.error || 'Could not subscribe')
+    subscribeForm.reset()
+    if (formMessage) formMessage.textContent = result.message
+  } catch (error) {
+    if (formMessage) formMessage.textContent = error.message
+  } finally {
+    if (button) button.disabled = false
+  }
+})

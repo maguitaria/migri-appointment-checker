@@ -29,8 +29,13 @@ body { margin: 0; }
 .step { color: #d66c4a; font-size: 13px; }
 .step em { color: #a3a5a1; font-style: normal; }
 .card form { display: grid; gap: 16px; margin-top: 32px; }
+.subscribe-copy { max-width: 600px; margin: 14px 0 -12px; color: #737973; font-size: 14px; }
 .card label { display: grid; gap: 7px; color: #666c67; font-size: 12px; font-weight: 800; }
 .card select { appearance: none; width: 100%; padding: 14px 45px 14px 15px; border: 1px solid #dedfda; border-radius: 11px; color: #252826; background: #fafbf9; font: inherit; font-size: 13px; }
+.card input[type='email'] { width: 100%; padding: 14px 15px; border: 1px solid #dedfda; border-radius: 11px; color: #252826; background: #fafbf9; font: inherit; font-size: 13px; }
+.consent { display: flex !important; grid-template-columns: auto 1fr; align-items: center; gap: 9px !important; color: #737973 !important; font-size: 11px !important; font-weight: 500 !important; }
+.consent input { accent-color: #d66c4a; }
+.form-message { min-height: 20px; margin: 0; color: #5f806b; font-size: 12px; }
 .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 .selected { display: flex; align-items: center; gap: 12px; padding: 13px 15px; border-radius: 12px; background: #f4f7f3; }
 .check { display: grid; place-items: center; width: 25px; height: 25px; border-radius: 50%; color: #fff; background: #6d947d; font-size: 12px; }

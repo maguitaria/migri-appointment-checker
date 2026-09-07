@@ -27,6 +27,20 @@ For a continuously running process instead of GitHub Actions, run `npm run runne
 
 The included GitHub Actions workflow runs it hourly. Add `RESEND_API_KEY`, `ALERT_FROM`, and `ALERT_TO` as repository secrets, then enable Actions. The workflow is intentionally read-only and does not bypass CAPTCHA or other booking controls.
 
+## Public website and subscriptions
+
+The intended hosted setup is GitHub Pages + GitHub Actions + a small Cloudflare Worker/D1 database:
+
+1. Deploy `worker/` to Cloudflare Workers and create its D1 database with `worker/schema.sql` (see `worker/README.md`).
+2. Copy `worker/wrangler.toml.example` to `worker/wrangler.toml`, add the D1 database ID, and set `MONITOR_API_KEY` as a Worker secret.
+3. Put the Worker URL in `config.js` as `API_URL`.
+4. Enable GitHub Pages with the included `deploy-pages.yml` workflow.
+5. Add `SUBSCRIPTION_API_URL` and `MONITOR_API_KEY` to GitHub Actions secrets alongside the Resend secrets.
+
+Visitors can then subscribe from the website by email and choose a supported reason. The Worker stores subscriptions privately; the scheduled Action reads active subscriptions and checks each selected flow. GitHub Pages alone cannot safely store public email subscriptions, which is why the small Worker/database layer is needed.
+
+The first production location is Oulu. The data model includes location so additional Migri service points can be added without redesigning the public website.
+
 ## Why both a runner and a website?
 
 The website is the human-facing dashboard: it explains the setup and displays the latest local `state.json` when served from this folder. A browser tab cannot reliably check in the background after it is closed, so the runner performs the actual scheduled work. Use either the always-on `npm run runner` process or the GitHub Actions schedule as the production runner; do not run both against the same recipients unless duplicate alerts are acceptable.
