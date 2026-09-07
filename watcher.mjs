@@ -26,11 +26,10 @@ if (!process.env.TELEGRAM_BOT_TOKEN) {
   throw new Error('Set TELEGRAM_BOT_TOKEN in .env')
 }
 
-async function findSlots(locationId, flowId) {
+async function findSlots(browser, locationId, flowId) {
   const location = locations[locationId]
   const flow = flows[flowId]
   if (!location || !flow) throw new Error(`Unsupported location or flow: ${locationId}/${flowId}`)
-  const browser = await chromium.launch({ headless: true })
   const page = await browser.newPage()
 
   try {
@@ -59,7 +58,7 @@ async function findSlots(locationId, flowId) {
     }
     return [...new Map(slots.map((slot) => [`${slot.date}|${slot.time}`, slot])).values()]
   } finally {
-    await browser.close()
+    await page.close()
   }
 }
 
@@ -115,22 +114,50 @@ const slotOrder = (a, b) => {
   return dateValue(a) - dateValue(b) || a.location.localeCompare(b.location) || a.flow.localeCompare(b.flow)
 }
 
-for (const [locationId, group] of Object.entries(groups)) {
-  if (!locations[locationId]) continue
-  const foundByFlow = []
-  for (const flowId of Object.keys(flows)) foundByFlow.push({ flowId, slots: await findSlots(locationId, flowId) })
-  const slots = foundByFlow.flatMap(({ flowId, slots: flowSlots }) => flowSlots.map((slot) => ({ ...slot, flow: flows[flowId].label, flowId })))
-  const uniqueSlots = [...new Map(slots.map((slot) => [`${slot.date}|${slot.time}|${slot.flowId}`, slot])).values()]
-  const oldSlots = previous.alerts?.[locationId] || []
-  const oldKeys = new Set(oldSlots.map((slot) => typeof slot === 'string' ? `${slot}|legacy` : `${slot.date}|${slot.time}|${slot.flowId}`))
-  const newSlots = uniqueSlots.filter((slot) => !oldKeys.has(`${slot.date}|${slot.time}|${slot.flowId}`))
-  if (newSlots.length > 0 && group.length > 0 && process.env.DRY_RUN !== 'true') await sendTelegram(locationId, newSlots, group)
-  if (newSlots.length > 0) console.log(`${process.env.DRY_RUN === 'true' ? 'Dry run — ' : ''}${locationId}: ${newSlots.map((slot) => `${slot.date} ${slot.time} — ${slot.flow}`).join(' | ')}`)
-  else console.log(`${locationId}: no new slots; visible slots: ${uniqueSlots.length}`)
-  uniqueSlots.sort((a, b) => slotOrder({ ...a, location: locationId }, { ...b, location: locationId }))
-  alerts[locationId] = uniqueSlots
-  availableSlots.push(...uniqueSlots.map(({ date, time, flow }) => ({ location: locationId, date, time, flow })))
+const browser = await chromium.launch({ headless: true })
+const failures = []
+
+try {
+  for (const [locationId, group] of Object.entries(groups)) {
+    if (!locations[locationId]) continue
+    const flowIds = Object.keys(flows)
+    const foundByFlow = []
+    for (let index = 0; index < flowIds.length; index += 2) {
+      const batch = flowIds.slice(index, index + 2)
+      const results = await Promise.allSettled(batch.map((flowId) => findSlots(browser, locationId, flowId)))
+      results.forEach((result, resultIndex) => {
+        const flowId = batch[resultIndex]
+        if (result.status === 'fulfilled') foundByFlow.push({ flowId, slots: result.value })
+        else {
+          const message = result.reason instanceof Error ? result.reason.message : String(result.reason)
+          failures.push(`${locationId}/${flowId}: ${message}`)
+          console.error(`Scan failed for ${locationId}/${flowId}: ${message}`)
+        }
+      })
+    }
+
+    const oldSlots = previous.alerts?.[locationId] || []
+    if (foundByFlow.length !== flowIds.length) {
+      console.error(`Keeping the previous ${locationId} result because one or more permit reasons failed.`)
+      alerts[locationId] = oldSlots
+      availableSlots.push(...oldSlots.filter((slot) => typeof slot === 'object').map(({ date, time, flow }) => ({ location: locationId, date, time, flow })))
+      continue
+    }
+
+    const slots = foundByFlow.flatMap(({ flowId, slots: flowSlots }) => flowSlots.map((slot) => ({ ...slot, flow: flows[flowId].label, flowId })))
+    const uniqueSlots = [...new Map(slots.map((slot) => [`${slot.date}|${slot.time}|${slot.flowId}`, slot])).values()]
+    const oldKeys = new Set(oldSlots.map((slot) => typeof slot === 'string' ? `${slot}|legacy` : `${slot.date}|${slot.time}|${slot.flowId}`))
+    const newSlots = uniqueSlots.filter((slot) => !oldKeys.has(`${slot.date}|${slot.time}|${slot.flowId}`))
+    if (newSlots.length > 0 && group.length > 0 && process.env.DRY_RUN !== 'true') await sendTelegram(locationId, newSlots, group)
+    if (newSlots.length > 0) console.log(`${process.env.DRY_RUN === 'true' ? 'Dry run — ' : ''}${locationId}: ${newSlots.map((slot) => `${slot.date} ${slot.time} — ${slot.flow}`).join(' | ')}`)
+    else console.log(`${locationId}: no new slots; visible slots: ${uniqueSlots.length}`)
+    uniqueSlots.sort((a, b) => slotOrder({ ...a, location: locationId }, { ...b, location: locationId }))
+    alerts[locationId] = uniqueSlots
+    availableSlots.push(...uniqueSlots.map(({ date, time, flow }) => ({ location: locationId, date, time, flow })))
+  }
+} finally {
+  await browser.close()
 }
 
 availableSlots.sort(slotOrder)
-writeFileSync(stateFile, JSON.stringify({ status: 'ok', alerts, slots: availableSlots.map(({ date, time, flow }) => `${date} ${time} — ${flow}`), availableSlots, checkedAt: new Date().toISOString(), check: 'All residence-permit flows for all supported locations', bookingUrl: BOOKING_URL }, null, 2))
+writeFileSync(stateFile, JSON.stringify({ status: failures.length ? 'partial' : 'ok', alerts, slots: availableSlots.map(({ date, time, flow }) => `${date} ${time} — ${flow}`), availableSlots, checkedAt: new Date().toISOString(), failures, check: 'All residence-permit flows for all supported locations', bookingUrl: BOOKING_URL }, null, 2))

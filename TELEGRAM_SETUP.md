@@ -106,7 +106,7 @@ If the URL is empty or different, run `npm run setup:telegram` again.
 
 If Start does nothing, run `npm run check:telegram` before changing code. The issue is the webhook URL, Worker secret, or Telegram bot token—not the website button.
 
-## 7. Configure the hourly runner
+## 7. Configure the 15-minute runner
 
 In GitHub, open the repository’s **Settings → Secrets and variables → Actions** and add:
 
@@ -116,9 +116,9 @@ SUBSCRIPTION_API_URL=https://migri-appointment-api.mglushen22.workers.dev
 MONITOR_API_KEY=the_same_value_used_for_the_Worker_secret
 ```
 
-Then open **Actions → Check Migri appointments hourly → Run workflow**.
+Then open **Actions → Check Migri appointments every 15 minutes → Run workflow**.
 
-The runner checks every hour, records date/time/location/reason, and sends a Telegram message only for newly seen slots. Each Telegram message has an **Open Migri booking now** button.
+The runner checks every 15 minutes, records date/time/location/reason, and sends a Telegram message only for newly seen slots. Each Telegram message has an **Open Migri booking now** button. If a previous scan is still running when the next interval starts, GitHub cancels the older run so scans do not pile up.
 
 The checker also runs once whenever code is pushed to `main`. Its own `state.json` update is excluded, so it cannot trigger itself repeatedly.
 
