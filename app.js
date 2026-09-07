@@ -55,7 +55,7 @@ subscribeForm?.addEventListener('submit', async (event) => {
   const location = subscribeForm.location.value
   const flow = subscribeForm.flow.value
   window.open(`https://t.me/${bot}?start=${encodeURIComponent(`${location}:${flow}`)}`, '_blank', 'noopener,noreferrer')
-  if (formMessage) formMessage.textContent = 'Telegram opened. Press Start in the bot to activate alerts.'
+  if (formMessage) formMessage.textContent = 'Telegram opened. Press Start. The bot should immediately confirm your alert.'
 })
 
 fetch(`${window.MIGRI_CONFIG?.API_URL || ''}/public/stats?ts=${Date.now()}`)

@@ -65,6 +65,14 @@ curl -X POST "https://api.telegram.org/botTELEGRAM_BOT_TOKEN/setWebhook" \
   -d "secret_token=TELEGRAM_WEBHOOK_SECRET"
 ```
 
+If the bot does nothing after pressing **Start**, the webhook is usually missing or points to an old Worker. Check it without printing the token:
+
+```sh
+npm run check:telegram
+```
+
+The expected webhook URL is `https://migri-appointment-api.mglushen22.workers.dev/telegram/webhook` for the current deployment. Telegram should show that exact URL and no recent error.
+
 Update the public website configuration:
 
 ```js
