@@ -11,6 +11,7 @@ const locations = {
   Vaasa: 'Vaasa : Vaasan palvelupiste'
 }
 const allowedLocations = new Set(Object.keys(locations))
+const publicSite = 'https://maguitaria.github.io/migri-appointment-checker/'
 
 function headers(origin = '*') {
   return { 'Access-Control-Allow-Origin': origin, 'Access-Control-Allow-Headers': 'content-type, authorization, x-telegram-bot-api-secret-token', 'Access-Control-Allow-Methods': 'GET, POST, OPTIONS', 'Content-Type': 'application/json' }
@@ -24,6 +25,31 @@ async function telegram(env, method, body) {
   const response = await fetch(`https://api.telegram.org/bot${env.TELEGRAM_BOT_TOKEN}/${method}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
   if (!response.ok) throw new Error(`Telegram API failed: ${response.status}`)
   return response.json()
+}
+
+async function sendCurrentAvailability(env, chatId, location) {
+  try {
+    const response = await fetch(`${publicSite}state.json?ts=${Date.now()}`)
+    if (!response.ok) throw new Error(`state.json returned ${response.status}`)
+    const state = await response.json()
+    const slots = (state.availableSlots || []).filter((slot) => slot.location === location)
+    const shown = slots.slice(0, 20)
+    const lines = shown.map((slot) => `• ${slot.date} ${slot.time} — ${slot.flow || 'Migri appointment'}`)
+    const fullListUrl = `${publicSite}?location=${encodeURIComponent(location)}#slots`
+    const text = [
+      `Current Migri times in ${location}`,
+      '',
+      slots.length ? `Found ${slots.length} available time${slots.length === 1 ? '' : 's'}.` : 'No available times are visible in the latest check.',
+      ...lines,
+      '',
+      slots.length > shown.length ? `Full paginated list: ${fullListUrl}` : fullListUrl,
+      'Future messages are sent when a newly detected time appears.'
+    ].join('\n')
+    await telegram(env, 'sendMessage', { chat_id: chatId, text, disable_web_page_preview: true })
+  } catch (error) {
+    console.error(`Could not send current availability for ${location}:`, error)
+    await telegram(env, 'sendMessage', { chat_id: chatId, text: 'Your alert is active. I could not load the current slot list right now; future new slots will still be sent.' })
+  }
 }
 
 function isAdmin(request, env) {
@@ -50,7 +76,7 @@ async function handleTelegramUpdate(update, env) {
   if (text.startsWith('/status')) {
     const { results } = await env.DB.prepare('SELECT location FROM telegram_subscriptions WHERE chat_id = ? AND active = 1 ORDER BY location').bind(chatId).all()
     const locationsText = results.length ? results.map((row) => `• ${row.location}`).join('\n') : 'No active alerts.'
-    await telegram(env, 'sendMessage', { chat_id: chatId, text: `Your active Migri alerts:\n${locationsText}\n\nThe checker runs hourly. Use /stop to unsubscribe.` })
+    await telegram(env, 'sendMessage', { chat_id: chatId, text: `Your active Migri alerts:\n${locationsText}\n\nThe checker runs every 15 minutes. Use /stop to unsubscribe.` })
     return
   }
 
@@ -65,7 +91,8 @@ async function handleTelegramUpdate(update, env) {
 
   const id = crypto.randomUUID()
   await env.DB.prepare(`INSERT INTO telegram_subscriptions (id, chat_id, username, location, flow, active, created_at) VALUES (?, ?, ?, ?, ?, 1, datetime('now')) ON CONFLICT(chat_id, location, flow) DO UPDATE SET active = 1, username = excluded.username`).bind(id, chatId, message.from?.username || '', location, flow).run()
-  await telegram(env, 'sendMessage', { chat_id: chatId, text: `You are subscribed to all Migri appointment times in ${location}. We check hourly and will message you when a new time appears. Send /stop to unsubscribe.` })
+    await telegram(env, 'sendMessage', { chat_id: chatId, text: `You are subscribed to all Migri appointment times in ${location}. I will send newly detected times automatically. Send /stop to unsubscribe.` })
+    await sendCurrentAvailability(env, chatId, location)
 }
 
 export default {

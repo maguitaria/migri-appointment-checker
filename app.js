@@ -14,6 +14,9 @@ const pageSize = 30
 let allSlots = []
 let page = 1
 
+const requestedLocation = new URLSearchParams(window.location.search).get('location')
+if (requestedLocation && slotLocation && [...slotLocation.options].some((option) => option.value === requestedLocation)) slotLocation.value = requestedLocation
+
 function selectedLocationLabel() {
   return locationSelect?.selectedOptions?.[0]?.textContent?.split(' · ')[0] || 'location'
 }
