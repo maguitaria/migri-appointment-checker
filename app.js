@@ -2,7 +2,6 @@ const statusText = document.querySelector('#runner-status')
 const lastCheckedText = document.querySelector('#last-checked')
 const subscribeForm = document.querySelector('#subscribe-form')
 const formMessage = document.querySelector('#form-message')
-const watcherSummary = document.querySelector('#watcher-summary')
 const escapeHtml = (value) => String(value ?? '').replace(/[&<>"']/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[character])
 
 fetch(`state.json?ts=${Date.now()}`)
@@ -28,18 +27,3 @@ subscribeForm?.addEventListener('submit', async (event) => {
   window.open(`https://t.me/${bot}?start=${encodeURIComponent(location)}`, '_blank', 'noopener,noreferrer')
   if (formMessage) formMessage.textContent = 'Telegram opened. Press Start. The bot should immediately confirm your alert.'
 })
-
-fetch(`${window.MIGRI_CONFIG?.API_URL || ''}/public/stats?ts=${Date.now()}`)
-  .then((response) => (response.ok ? response.json() : null))
-  .then((stats) => {
-    if (!stats || !watcherSummary) return
-    const total = Number(stats.total || 0)
-    watcherSummary.textContent = `${total} ${total === 1 ? 'person is' : 'people are'} currently watching these locations`
-    for (const item of stats.locations || []) {
-      const element = document.querySelector(`[data-watchers="${item.location}"]`)
-      if (element) element.textContent = `${item.watchers} watching`
-    }
-  })
-  .catch(() => {
-    if (watcherSummary) watcherSummary.textContent = 'Watcher counts will appear when the notification service is online'
-  })

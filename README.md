@@ -9,7 +9,6 @@ The service:
 - stores the user’s Telegram chat ID privately in Cloudflare D1;
 - checks each selected location with a read-only browser worker every hour;
 - sends a Telegram alert when a new time appears;
-- shows an anonymized count of active watchers per location;
 - never enters personal data or books an appointment.
 
 Current locations: **Oulu, Rovaniemi, and Vaasa**. The runner checks all configured residence-permit flows for each location, so users do not need to choose a permit subtype.
@@ -26,7 +25,9 @@ You need:
 2. Cloudflare — Worker API and D1 database.
 3. Telegram — bot and bot token.
 
-No AI key, email domain, or paid email provider is required.
+The service uses Telegram, Cloudflare, and GitHub Actions.
+
+For the exact Telegram setup and webhook test, follow [TELEGRAM_SETUP.md](TELEGRAM_SETUP.md).
 
 ### 1. Create the single Telegram bot for the service
 
@@ -150,7 +151,7 @@ Use either GitHub Actions or `npm run runner`, not both for the same bot subscri
 
 ## How it works
 
-The website is a public control panel. A user selects a location, then opens the shared Telegram bot. The bot stores only the Telegram chat ID, selected location, and active status in the private D1 database. The public site shows only aggregate watcher counts.
+The website is a public control panel. A user selects a location, then opens the shared Telegram bot. The bot stores only the Telegram chat ID, selected location, and active status in the private D1 database.
 
 The scheduled runner checks all configured residence-permit flows and the next ten visible Migri weeks for every supported location once per hour. Each result includes the exact date, time, location, and reason that produced it. Results are combined and deduplicated, then compared with the previous check. A new time is sent once to subscribers watching that location; it is not repeated every hour while the same slot remains visible. The public page lists the latest combined snapshot. The service never reserves an appointment and never enters identity or application data.
 
