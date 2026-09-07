@@ -8,6 +8,7 @@ The service:
 - opens the Telegram bot with that preference;
 - stores the user’s Telegram chat ID privately in Cloudflare D1;
 - checks every supported location with a read-only browser runner every 15 minutes;
+- sends the current earliest times immediately after a user subscribes;
 - sends a Telegram alert when a new time appears;
 - never enters personal data or books an appointment.
 
@@ -90,7 +91,7 @@ Or put `SUBSCRIPTION_API_URL` and `MONITOR_API_KEY` in local `.env` and run:
 npm run setup:telegram
 ```
 
-The status response should show the Worker webhook URL and no `last_error_message`. After that, open the bot and press **Start** again. It should confirm the selected location.
+The status response should show the Worker webhook URL and no `last_error_message`. After that, open the bot and press **Start** again. It should confirm the selected location and send the current earliest available times.
 
 Update the public website configuration:
 
@@ -153,7 +154,7 @@ Use either GitHub Actions or `npm run runner`, not both for the same bot subscri
 
 The website is a public control panel. A user selects a location, then opens the shared Telegram bot. The bot stores only the Telegram chat ID, selected location, and active status in the private D1 database.
 
-The scheduled runner checks all configured residence-permit flows and the next ten visible Migri weeks for every supported location every 15 minutes. The public page sorts the results by earliest date/time and paginates them. Each result includes the exact date, time, location, and reason that produced it. Results are combined and deduplicated, then compared with the previous check. A new time is sent once to subscribers watching that location; it is not repeated every 15 minutes while the same slot remains visible. The service never reserves an appointment and never enters identity or application data.
+The scheduled runner checks all configured residence-permit flows and the next ten visible Migri weeks for every supported location every 15 minutes. The public page sorts the results by earliest date/time and paginates them. Each result includes the exact date, time, location, and reason that produced it. Results are combined and deduplicated, then compared with the previous check. When a user subscribes, the bot sends the first 20 current times and links to the full paginated list. After that, a new time is sent once to subscribers watching that location; it is not repeated every 15 minutes while the same slot remains visible. The service never reserves an appointment and never enters identity or application data.
 
 ## User flow
 
@@ -161,10 +162,20 @@ The scheduled runner checks all configured residence-permit flows and the next t
 2. Visitor selects a location.
 3. Visitor clicks **Get alerts in Telegram**.
 4. Visitor presses **Start** in the bot.
-5. The bot confirms the subscription.
-6. The checker sends a Telegram message when a new time appears.
-7. Visitor opens Migri and books manually.
-8. Visitor sends `/stop` to unsubscribe.
+5. The bot confirms the subscription and sends the earliest current times.
+6. The checker sends a Telegram message when a newly detected time appears.
+7. Visitor opens the official Migri booking service and books manually.
+8. Visitor sends `/status` to see active locations or `/stop` to unsubscribe.
+
+## Telegram languages and official links
+
+The bot detects the Telegram account language automatically. It supports Finnish (`fi`), Russian (`ru`), Ukrainian (`uk`), and English as the fallback. `/help`, `/status`, `/stop`, subscription confirmations, and slot messages include clear instructions in the selected language.
+
+Official authority information is provided by [Migri](https://migri.fi/en). The official appointment service is [Migri appointment booking](https://migri.vihta.com/public/migri/#/home). The bot only notifies; it does not make a reservation or replace Migri’s instructions.
+
+## Other agencies
+
+This project currently monitors Migri appointment locations and configured residence-permit services. It does not automatically monitor every Finnish agency. Each additional agency would need its own official booking URL, service/location mapping, availability reader, and notification adapter. Users can still use the same Telegram bot for multiple Migri locations by sending, for example, `/start Oulu` and `/start Helsinki`.
 
 ## Local dashboard
 
