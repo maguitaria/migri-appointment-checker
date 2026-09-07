@@ -8,6 +8,7 @@ const slotLocation = document.querySelector('#slot-location')
 const previousPage = document.querySelector('#previous-page')
 const nextPage = document.querySelector('#next-page')
 const pageInfo = document.querySelector('#slot-page-info')
+const pageNumber = document.querySelector('#slot-page-number')
 const escapeHtml = (value) => String(value ?? '').replace(/[&<>"']/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[character])
 const pageSize = 30
 let allSlots = []
@@ -29,7 +30,10 @@ function renderSlots() {
   page = Math.min(page, pageCount)
   const visible = filtered.slice((page - 1) * pageSize, page * pageSize)
   slotList.innerHTML = visible.length ? visible.map(({ location, date, time, flow }) => `<li><b>${escapeHtml(date || 'Date pending')} · ${escapeHtml(time)}</b><span>${escapeHtml(location)} · ${escapeHtml(flow || 'Reason pending')}</span></li>`).join('') : '<li class="empty-slot">No slots in this selection.</li>'
-  if (pageInfo) pageInfo.textContent = filtered.length ? `${filtered.length} slots · page ${page}/${pageCount}` : '0 slots'
+  const first = filtered.length ? (page - 1) * pageSize + 1 : 0
+  const last = Math.min(page * pageSize, filtered.length)
+  if (pageInfo) pageInfo.textContent = filtered.length ? `Showing ${first}–${last} of ${filtered.length}` : '0 slots'
+  if (pageNumber) pageNumber.textContent = filtered.length ? `Page ${page} of ${pageCount}` : ''
   if (previousPage) previousPage.disabled = page <= 1
   if (nextPage) nextPage.disabled = page >= pageCount
 }
@@ -43,13 +47,18 @@ updateSubscribeButton()
 fetch(`state.json?ts=${Date.now()}`)
   .then((response) => (response.ok ? response.json() : null))
   .then((state) => {
-    if (!state) return
+    if (!state) throw new Error('Slot data is unavailable')
     if (statusText) statusText.textContent = state.status === 'ok' ? 'Runner online' : 'Runner needs attention'
     if (lastCheckedText && state.checkedAt) lastCheckedText.textContent = `Last checked ${new Date(state.checkedAt).toLocaleString()}`
     allSlots = state.availableSlots || []
     renderSlots()
   })
-  .catch(() => {})
+  .catch(() => {
+    if (statusText) statusText.textContent = 'Slot list unavailable'
+    if (lastCheckedText) lastCheckedText.textContent = 'Open the deployed website to load the latest check'
+    const slotList = document.querySelector('#slot-list')
+    if (slotList) slotList.innerHTML = '<li class="empty-slot">The live slot list could not be loaded. Please open the GitHub Pages URL, not the local file.</li>'
+  })
 
 subscribeForm?.addEventListener('submit', async (event) => {
   event.preventDefault()
