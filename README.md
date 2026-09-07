@@ -1,50 +1,114 @@
-# Migri Oulu appointment checker
+# Migri Oulu notification service
 
-Standalone static implementation plus an optional hourly watcher for checking the Migri appointment flow for Oulu.
+Public website + background checker for Migri appointments in Oulu.
 
-Open-source project under the MIT License. The watcher is intentionally read-only: it checks public appointment availability and sends alerts, but never submits a booking.
+The service:
 
-## Run locally
+- lets a visitor choose a location and residence-permit reason;
+- stores the subscription in Cloudflare D1;
+- checks Migri with a read-only browser worker every hour;
+- emails subscribers when a new time appears;
+- never enters personal data or books an appointment.
 
-Open `index.html` directly in a browser, or serve the folder with any static server:
+Current supported location: **Oulu**. Current reasons: work, family, study, and permanent residence.
+
+## Public setup
+
+You need three accounts:
+
+1. GitHub — code, GitHub Pages, and the scheduled checker.
+2. Cloudflare — Worker API and D1 subscription database.
+3. Resend — email delivery.
+
+No AI key is required.
+
+### 1. Deploy the subscription API
+
+```sh
+cd worker
+npx wrangler login
+npx wrangler d1 create migri-subscriptions
+cp wrangler.toml.example wrangler.toml
+# Put the database_id printed by Wrangler into wrangler.toml.
+npx wrangler d1 execute migri-subscriptions --remote --file=schema.sql
+npx wrangler secret put MONITOR_API_KEY
+npx wrangler deploy
+```
+
+If Cloudflare asks you to register a `workers.dev` subdomain, complete that once in the Cloudflare dashboard and run `npx wrangler deploy` again.
+
+Copy the deployed Worker URL into the root `config.js`:
+
+```js
+window.MIGRI_CONFIG = {
+  API_URL: 'https://your-worker.workers.dev'
+}
+```
+
+### 2. Configure email delivery
+
+Create a Resend API key and verify a sending domain for production use. Add these GitHub Actions secrets:
+
+```text
+RESEND_API_KEY
+ALERT_FROM
+SUBSCRIPTION_API_URL
+MONITOR_API_KEY
+```
+
+`MONITOR_API_KEY` must be the same value used with `wrangler secret put MONITOR_API_KEY`.
+
+For testing, Resend can send from `onboarding@resend.dev` to the Resend account email only. Sending to other subscribers requires a verified domain.
+
+### 3. Enable GitHub Pages
+
+In the repository:
+
+1. Open **Settings → Pages**.
+2. Set **Source** to **GitHub Actions**.
+3. Push to `main` or run **Deploy website to GitHub Pages** manually.
+
+The site will be available at:
+
+```text
+https://YOUR_GITHUB_USERNAME.github.io/migri-appointment-checker/
+```
+
+### 4. Start monitoring
+
+The `Check Migri Oulu appointments` workflow runs hourly. It saves the last result in `state.json` so the same slot is not emailed repeatedly.
+
+For local development only:
+
+```sh
+cp .env.example .env
+npm install
+npx playwright install chromium
+npm run check
+```
+
+For a continuously running local/server process:
+
+```sh
+npm run runner
+```
+
+Use either the GitHub Actions runner or `npm run runner`, not both for the same subscribers.
+
+## Why the background runner exists
+
+The website is only the public interface. It cannot check Migri after a visitor closes the browser. The runner performs the scheduled browser check, compares the result with the previous run, and sends the alert.
+
+The final booking is always manual on Migri. This avoids storing passport details, submitting appointments automatically, or bypassing CAPTCHA and booking controls.
+
+## Local dashboard
 
 ```sh
 python3 -m http.server 8080
 ```
 
-The checker is a guide and availability snapshot. It does not reserve appointments or collect personal data. The official live calendar is always available through the links on the page.
+Open `http://localhost:8080`.
 
-## Email watcher
+## License
 
-The watcher follows the official flow for `Oleskelulupa → 1. Työ → Oulu → 1 henkilö` and emails a group when a newly visible time is found. It never submits a booking.
-
-1. Copy `.env.example` to `.env`.
-2. Add a Resend API key, a verified sender, and comma-separated recipient emails.
-3. Install dependencies and Chromium: `npm install && npx playwright install chromium`.
-4. Run one check: `npm run check`.
-
-For a continuously running process instead of GitHub Actions, run `npm run runner`. It checks once immediately and then repeats every hour. Set `CHECK_INTERVAL_MINUTES` to a value of 15 or higher if you need a different interval.
-
-The included GitHub Actions workflow runs it hourly. Add `RESEND_API_KEY`, `ALERT_FROM`, and `ALERT_TO` as repository secrets, then enable Actions. The workflow is intentionally read-only and does not bypass CAPTCHA or other booking controls.
-
-## Public website and subscriptions
-
-The intended hosted setup is GitHub Pages + GitHub Actions + a small Cloudflare Worker/D1 database:
-
-1. Deploy `worker/` to Cloudflare Workers and create its D1 database with `worker/schema.sql` (see `worker/README.md`).
-2. Copy `worker/wrangler.toml.example` to `worker/wrangler.toml`, add the D1 database ID, and set `MONITOR_API_KEY` as a Worker secret.
-3. Put the Worker URL in `config.js` as `API_URL`.
-4. Enable GitHub Pages with the included `deploy-pages.yml` workflow.
-5. Add `SUBSCRIPTION_API_URL` and `MONITOR_API_KEY` to GitHub Actions secrets alongside the Resend secrets.
-
-Visitors can then subscribe from the website by email and choose a supported reason. The Worker stores subscriptions privately; the scheduled Action reads active subscriptions and checks each selected flow. GitHub Pages alone cannot safely store public email subscriptions, which is why the small Worker/database layer is needed.
-
-The first production location is Oulu. The data model includes location so additional Migri service points can be added without redesigning the public website.
-
-## Why both a runner and a website?
-
-The website is the human-facing dashboard: it explains the setup and displays the latest local `state.json` when served from this folder. A browser tab cannot reliably check in the background after it is closed, so the runner performs the actual scheduled work. Use either the always-on `npm run runner` process or the GitHub Actions schedule as the production runner; do not run both against the same recipients unless duplicate alerts are acceptable.
-
-## Required keys
-
-No AI key is required. The only external credential is a [Resend](https://resend.com) API key for sending email. Keep it in GitHub Actions secrets or a local `.env` file; never commit it.
+MIT. See [LICENSE](LICENSE).
