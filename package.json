@@ -5,7 +5,8 @@
   "repository": "https://github.com/maguitaria/migri-appointment-checker",
   "type": "module",
   "scripts": {
-    "check": "node --env-file=.env watcher.mjs"
+    "check": "node --env-file=.env watcher.mjs",
+    "runner": "node --env-file=.env runner.mjs"
   },
   "dependencies": {
     "playwright": "^1.55.0"

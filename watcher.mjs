@@ -68,4 +68,10 @@ if (newSlots.length > 0) {
   console.log(`No new slots. Visible slots: ${slots.length}.`)
 }
 
-writeFileSync(stateFile, JSON.stringify({ slots, checkedAt: new Date().toISOString() }, null, 2))
+writeFileSync(stateFile, JSON.stringify({
+  status: 'ok',
+  slots,
+  checkedAt: new Date().toISOString(),
+  check: 'Oleskelulupa → 1. Työ → Oulu → 1 henkilö',
+  bookingUrl: BOOKING_URL
+}, null, 2))

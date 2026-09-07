@@ -23,7 +23,13 @@ The watcher follows the official flow for `Oleskelulupa → 1. Työ → Oulu →
 3. Install dependencies and Chromium: `npm install && npx playwright install chromium`.
 4. Run one check: `npm run check`.
 
+For a continuously running process instead of GitHub Actions, run `npm run runner`. It checks once immediately and then repeats every hour. Set `CHECK_INTERVAL_MINUTES` to a value of 15 or higher if you need a different interval.
+
 The included GitHub Actions workflow runs it hourly. Add `RESEND_API_KEY`, `ALERT_FROM`, and `ALERT_TO` as repository secrets, then enable Actions. The workflow is intentionally read-only and does not bypass CAPTCHA or other booking controls.
+
+## Why both a runner and a website?
+
+The website is the human-facing dashboard: it explains the setup and displays the latest local `state.json` when served from this folder. A browser tab cannot reliably check in the background after it is closed, so the runner performs the actual scheduled work. Use either the always-on `npm run runner` process or the GitHub Actions schedule as the production runner; do not run both against the same recipients unless duplicate alerts are acceptable.
 
 ## Required keys
 
