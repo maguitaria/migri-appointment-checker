@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="A quick guide for checking Migri appointment availability in Oulu." />
+    <title>Migri · Oulu appointment checker</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <nav class="nav"><a href="/">Migri checker</a><span>Oulu · Finland</span></nav>
+      <section class="hero">
+        <div class="kicker"><i></i> Appointment availability</div>
+        <h1>Find a Migri time in Oulu.</h1>
+        <p>A quick, calm way to check the official appointment flow before you start a booking. Choose what you need, then continue on Migri’s live service.</p>
+        <div class="actions"><a class="button dark" href="https://migri.vihta.com/public/migri/#/home" target="_blank" rel="noreferrer">Open Migri booking <b>↗</b></a><a class="text-link" href="#checker">Check the flow <b>↓</b></a></div>
+      </section>
+
+      <section class="card" id="checker">
+        <header class="card-head"><div><small>Live booking guide</small><h2>What are you booking?</h2></div><strong class="step">01 <em>/ 04</em></strong></header>
+        <form id="checker-form">
+          <label>Service category<select id="category"><option>Residence permit</option><option>Citizenship matter</option><option>Travel document</option><option>EU registration / Brexit</option></select></label>
+          <label>Service<select id="service"><option>Work-based residence permit</option><option>Family-based residence permit</option><option>Study-based residence permit</option><option>Permanent residence permit</option></select></label>
+          <div class="form-grid"><label>Applicants<select id="applicants"><option>1 person</option><option>Family appointment</option></select></label><label>Service point<select id="office"><option>Oulu · Oulun palvelupiste</option><option>Rovaniemi · Rovaniemen palvelupiste</option><option>Vaasa · Vaasan palvelupiste</option></select></label></div>
+          <div class="selected"><span class="check">✓</span><div><b>Oulu selected</b><small>Albertinkatu 4B · 90100 Oulu</small></div><em>Official service</em></div>
+          <button class="button accent" type="submit">Check Oulu availability <b>→</b></button>
+        </form>
+      </section>
+
+      <section class="result" id="result" aria-live="polite"><div class="result-head"><small>Last verified snapshot</small><span>7 September 2026 · Oulu</span></div><div class="result-body"><div class="empty">—</div><div><h2>No times visible right now</h2><p>The selected Oulu flow did not show an open slot in the current week. Migri releases times regularly, so checking again later can help.</p></div></div><footer>Result for <b>Oulu · 1 person</b><a href="https://migri.vihta.com/public/migri/#/home" target="_blank" rel="noreferrer">Check the official service <b>↗</b></a></footer></section>
+
+      <section class="notes"><article><span>01</span><h3>This is a checker, not a reservation</h3><p>Use Migri’s own booking service to see the authoritative live calendar and reserve a time.</p></article><article><span>02</span><h3>Keep your booking code</h3><p>Migri sends a booking reference and PIN. Keep both if you need to change or cancel your appointment.</p></article><article><span>03</span><h3>Don’t buy appointments</h3><p>Migri says appointments are available only through its official booking system.</p></article></section>
+    </main>
+    <script src="app.js"></script>
+  </body>
+</html>
