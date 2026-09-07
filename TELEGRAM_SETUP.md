@@ -1,6 +1,6 @@
 # Telegram setup
 
-This is the complete setup for the owner of the bot. Run the commands from the repository root.
+This is the complete setup for the owner of the bot. Run the commands from the repository root. GitHub Actions receives the secrets directly; it does not need a committed `.env` file.
 
 ## 1. Create or confirm the bot
 
