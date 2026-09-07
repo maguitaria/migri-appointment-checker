@@ -71,7 +71,7 @@ If the bot does nothing after pressing **Start**, the webhook is usually missing
 npm run check:telegram
 ```
 
-The expected webhook URL is `https://migri-appointment-api.mglushen22.workers.dev/telegram/webhook` for the current deployment. Telegram should show that exact URL and no recent error.
+The expected webhook URL is `https://migri-appointment-api.mglushen22.workers.dev/telegram/webhook` for the current deployment. Telegram should show that exact URL and no recent error. The Worker CORS origin must be the site origin (`https://maguitaria.github.io`), not the repository path.
 
 Update the public website configuration:
 

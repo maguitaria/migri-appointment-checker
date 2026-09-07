@@ -8,4 +8,4 @@ database_name = "migri-subscriptions"
 database_id = "fa3d1e0c-4c51-479b-99f8-ea5202e65b86"
 
 [vars]
-SITE_ORIGIN = "https://maguitaria.github.io/migri-appointment-checker"
+SITE_ORIGIN = "https://maguitaria.github.io"
