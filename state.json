@@ -12088,6 +12088,30 @@
     ],
     "Tampere": [
       {
+        "date": "16.09.2026",
+        "time": "08:15",
+        "flow": "Residence permit · Family",
+        "flowId": "residence_family"
+      },
+      {
+        "date": "16.09.2026",
+        "time": "08:15",
+        "flow": "Residence permit · Permanent",
+        "flowId": "residence_permanent"
+      },
+      {
+        "date": "16.09.2026",
+        "time": "08:15",
+        "flow": "Residence permit · Study",
+        "flowId": "residence_study"
+      },
+      {
+        "date": "16.09.2026",
+        "time": "08:15",
+        "flow": "Residence permit · Work",
+        "flowId": "residence_work"
+      },
+      {
         "date": "17.11.2026",
         "time": "09:00",
         "flow": "Residence permit · Family",
@@ -22822,6 +22846,10 @@
     ]
   },
   "slots": [
+    "16.09.2026 08:15 — Residence permit · Family",
+    "16.09.2026 08:15 — Residence permit · Permanent",
+    "16.09.2026 08:15 — Residence permit · Study",
+    "16.09.2026 08:15 — Residence permit · Work",
     "26.10.2026 08:15 — Residence permit · Family",
     "26.10.2026 08:15 — Residence permit · Permanent",
     "26.10.2026 08:15 — Residence permit · Study",
@@ -26624,6 +26652,30 @@
     "05.03.2027 14:45 — Residence permit · Work"
   ],
   "availableSlots": [
+    {
+      "location": "Tampere",
+      "date": "16.09.2026",
+      "time": "08:15",
+      "flow": "Residence permit · Family"
+    },
+    {
+      "location": "Tampere",
+      "date": "16.09.2026",
+      "time": "08:15",
+      "flow": "Residence permit · Permanent"
+    },
+    {
+      "location": "Tampere",
+      "date": "16.09.2026",
+      "time": "08:15",
+      "flow": "Residence permit · Study"
+    },
+    {
+      "location": "Tampere",
+      "date": "16.09.2026",
+      "time": "08:15",
+      "flow": "Residence permit · Work"
+    },
     {
       "location": "Vaasa",
       "date": "26.10.2026",
@@ -49425,7 +49477,7 @@
       "flow": "Residence permit · Work"
     }
   ],
-  "checkedAt": "2026-09-09T21:21:30.580Z",
+  "checkedAt": "2026-09-09T23:26:34.956Z",
   "failures": [],
   "check": "All residence-permit flows for all supported locations",
   "bookingUrl": "https://migri.vihta.com/public/migri/"
