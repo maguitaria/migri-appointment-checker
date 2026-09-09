@@ -1,7 +1,7 @@
 import { chromium } from 'playwright'
 import { existsSync, readFileSync, writeFileSync } from 'node:fs'
 
-const BOOKING_URL = 'https://migri.vihta.com/public/migri/#/home'
+const BOOKING_URL = 'https://migri.vihta.com/public/migri/'
 const stateFile = new URL('./state.json', import.meta.url)
 const locations = {
   Ahvenanmaa: { label: 'Ahvenanmaa / Mariehamn', office: 'Ahvenanmaa Åland : Maarianhaminan palvelupiste' },
@@ -33,9 +33,11 @@ async function findSlots(browser, locationId, flowId) {
   const page = await browser.newPage()
 
   try {
-    await page.goto(BOOKING_URL, { waitUntil: 'domcontentloaded', timeout: 45_000 })
+    await page.goto(BOOKING_URL, { waitUntil: 'domcontentloaded', timeout: 60_000 })
     await page.waitForTimeout(700)
-    await page.getByRole('link', { name: 'Varaa uusi aika' }).click()
+    const newAppointmentLink = page.getByRole('link', { name: 'Varaa uusi aika' })
+    await newAppointmentLink.waitFor({ state: 'visible', timeout: 45_000 })
+    await newAppointmentLink.click({ timeout: 10_000 })
     await page.getByRole('button', { name: 'Valitse palvelukategoria' }).click()
     await page.getByRole('option', { name: flow.category }).click()
     await page.getByRole('button', { name: 'Valitse palvelu' }).click()
@@ -118,7 +120,8 @@ async function sendTelegram(locationId, slots, subscriptions) {
 }
 
 const subscriptions = await getSubscriptions()
-const groups = Object.fromEntries(Object.keys(locations).map((locationId) => [locationId, subscriptions.filter((subscription) => (subscription.location || 'Oulu') === locationId)]))
+const selectedLocationIds = (process.env.CHECK_LOCATIONS ? process.env.CHECK_LOCATIONS.split(',') : Object.keys(locations)).map((value) => String(value).trim()).filter((value) => locations[value])
+const groups = Object.fromEntries(selectedLocationIds.map((locationId) => [locationId, subscriptions.filter((subscription) => (subscription.location || 'Oulu') === locationId)]))
 const previous = existsSync(stateFile) ? JSON.parse(readFileSync(stateFile, 'utf8')) : { alerts: {} }
 const alerts = {}
 

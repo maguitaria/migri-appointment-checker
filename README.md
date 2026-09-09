@@ -1,6 +1,6 @@
 # Migri Telegram appointment notification service
 
-Public website + background checker for Migri appointments and Passport Service Berlin.
+Public website + background checker for Migri appointments.
 
 The service:
 
@@ -11,8 +11,6 @@ The service:
 - sends the current earliest times immediately after a user subscribes;
 - sends a Telegram alert when a new time appears;
 - never enters personal data or books an appointment.
-
-The website has two tabs: **Migri appointments** and **Passport Service Berlin**. Both use the same Telegram bot and Cloudflare account, while keeping their slot snapshots separate.
 
 Current locations: **Ahvenanmaa/Mariehamn, Helsinki Malmi, Kuopio, Lahti, Lappeenranta, Oulu, Rovaniemi, Tampere, Turku/Raisio, and Vaasa**. The runner checks all configured residence-permit flows for each location, so users do not need to choose a permit subtype.
 
@@ -158,10 +156,6 @@ The website is a public control panel. A user selects a location, then opens the
 
 The scheduled runner checks all configured residence-permit flows and the next ten visible Migri weeks for every supported location every 15 minutes. The public page sorts the results by earliest date/time and paginates them. Each result includes the exact date, time, location, and reason that produced it. Results are combined and deduplicated, then compared with the previous check. When a user subscribes, the bot sends the first 20 current times and links to the full paginated list. After that, a new time is sent once to subscribers watching that location; it is not repeated every 15 minutes while the same slot remains visible. The service never reserves an appointment and never enters identity or application data.
 
-The Passport Service Berlin tab follows the public queue flow: service → date → time. It reads the visible time and free-slot count, for example `09:15 — 7 free slots`, and never fills the phone number, consent checkbox, documents, Diia, BankID, or booking submission. The Telegram payload is `/start passport_berlin` and the snapshot is stored in `passport-state.json`.
-
-Important: Passport Service currently presents a Cloudflare verification page to unattended GitHub Actions browsers. The interactive browser can render the public form, but background monitoring is not reliable until the service provides an accessible public availability endpoint or permits unattended access. The project records that condition instead of bypassing the security check.
-
 ## User flow
 
 1. Visitor opens the website.
@@ -177,11 +171,7 @@ Important: Passport Service currently presents a Cloudflare verification page to
 
 The bot detects the Telegram account language automatically. It supports Finnish (`fi`), Russian (`ru`), Ukrainian (`uk`), and English as the fallback. `/help`, `/status`, `/stop`, subscription confirmations, and slot messages include clear instructions in the selected language.
 
-Official authority information is provided by [Migri](https://migri.fi/en). The official appointment service is [Migri appointment booking](https://migri.vihta.com/public/migri/#/home). The bot only notifies; it does not make a reservation or replace Migri’s instructions.
-
-## Other agencies
-
-This project currently monitors Migri appointment locations and includes the Passport Service Berlin tab. It does not automatically monitor every agency. Each additional agency needs its own official booking URL, service/location mapping, availability reader, and notification adapter. Passport Service Berlin can be subscribed to with `/start passport_berlin`; Migri locations use commands such as `/start Oulu` and `/start Helsinki`.
+Official authority information is provided by [Migri](https://migri.fi/en). The official appointment service is [Migri appointment booking](https://migri.vihta.com/public/migri/). The bot only notifies; it does not make a reservation or replace Migri’s instructions.
 
 ## Local dashboard
 

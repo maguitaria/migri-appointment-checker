@@ -10,21 +10,11 @@ const nextPage = document.querySelector('#next-page')
 const pageInfo = document.querySelector('#slot-page-info')
 const pageNumber = document.querySelector('#slot-page-number')
 const migriTab = document.querySelector('#migri-tab')
-const passportTab = document.querySelector('#passport-tab')
 const migriView = document.querySelector('#migri-view')
-const passportView = document.querySelector('#passport-view')
-const passportSubscribeButton = document.querySelector('#passport-subscribe-button')
-const passportFormMessage = document.querySelector('#passport-form-message')
-const passportPreviousPage = document.querySelector('#passport-previous-page')
-const passportNextPage = document.querySelector('#passport-next-page')
-const passportPageInfo = document.querySelector('#passport-slot-page-info')
-const passportPageNumber = document.querySelector('#passport-slot-page-number')
 const escapeHtml = (value) => String(value ?? '').replace(/[&<>"']/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[character])
 const pageSize = 30
 let allSlots = []
 let page = 1
-let passportSlots = []
-let passportPage = 1
 
 const requestedLocation = new URLSearchParams(window.location.search).get('location')
 if (requestedLocation && slotLocation && [...slotLocation.options].some((option) => option.value === requestedLocation)) slotLocation.value = requestedLocation
@@ -53,44 +43,11 @@ function renderSlots() {
   if (nextPage) nextPage.disabled = page >= pageCount
 }
 
-function renderPassportSlots() {
-  const slotList = document.querySelector('#passport-slot-list')
-  if (!slotList) return
-  const pageSize = 30
-  const pageCount = Math.max(1, Math.ceil(passportSlots.length / pageSize))
-  passportPage = Math.min(passportPage, pageCount)
-  const visible = passportSlots.slice((passportPage - 1) * pageSize, passportPage * pageSize)
-  slotList.innerHTML = visible.length ? visible.map(({ date, time, availableCount, service }) => `<li><b>${escapeHtml(date)} · ${escapeHtml(time)}</b><span>${escapeHtml(service)} · ${escapeHtml(availableCount)} free slots</span></li>`).join('') : '<li class="empty-slot">No passport times are visible in the latest check.</li>'
-  const first = passportSlots.length ? (passportPage - 1) * pageSize + 1 : 0
-  const last = Math.min(passportPage * pageSize, passportSlots.length)
-  if (passportPageInfo) passportPageInfo.textContent = passportSlots.length ? `Showing ${first}–${last} of ${passportSlots.length}` : '0 slots'
-  if (passportPageNumber) passportPageNumber.textContent = passportSlots.length ? `Page ${passportPage} of ${pageCount}` : ''
-  if (passportPreviousPage) passportPreviousPage.disabled = passportPage <= 1
-  if (passportNextPage) passportNextPage.disabled = passportPage >= pageCount
-}
-
-function showService(service) {
-  const passport = service === 'passport'
-  if (migriView) migriView.hidden = passport
-  if (passportView) passportView.hidden = !passport
-  migriTab?.classList.toggle('active', !passport)
-  passportTab?.classList.toggle('active', passport)
-  if (passport) history.replaceState(null, '', `${window.location.pathname}?service=passport#passport`)
-  else history.replaceState(null, '', `${window.location.pathname}#slots`)
-}
-
 locationSelect?.addEventListener('change', updateSubscribeButton)
 slotLocation?.addEventListener('change', () => { page = 1; renderSlots() })
 previousPage?.addEventListener('click', () => { page -= 1; renderSlots() })
 nextPage?.addEventListener('click', () => { page += 1; renderSlots() })
-passportTab?.addEventListener('click', () => showService('passport'))
-migriTab?.addEventListener('click', () => showService('migri'))
-passportPreviousPage?.addEventListener('click', () => { passportPage -= 1; renderPassportSlots() })
-passportNextPage?.addEventListener('click', () => { passportPage += 1; renderPassportSlots() })
 updateSubscribeButton()
-
-const initialService = new URLSearchParams(window.location.search).get('service')
-if (initialService === 'passport') showService('passport')
 
 fetch(`state.json?ts=${Date.now()}`)
   .then((response) => (response.ok ? response.json() : null))
@@ -108,15 +65,6 @@ fetch(`state.json?ts=${Date.now()}`)
     if (slotList) slotList.innerHTML = '<li class="empty-slot">The live slot list could not be loaded. Please open the GitHub Pages URL, not the local file.</li>'
   })
 
-fetch(`passport-state.json?ts=${Date.now()}`)
-  .then((response) => (response.ok ? response.json() : null))
-  .then((state) => {
-    if (!state) return
-    passportSlots = state.availableSlots || []
-    renderPassportSlots()
-  })
-  .catch(() => {})
-
 subscribeForm?.addEventListener('submit', async (event) => {
   event.preventDefault()
   const bot = window.MIGRI_CONFIG?.TELEGRAM_BOT_USERNAME
@@ -127,14 +75,4 @@ subscribeForm?.addEventListener('submit', async (event) => {
   const location = subscribeForm.location.value
   window.open(`https://t.me/${bot}?start=${encodeURIComponent(location)}`, '_blank', 'noopener,noreferrer')
   if (formMessage) formMessage.textContent = 'Telegram opened. Press Start. The bot should immediately confirm your alert.'
-})
-
-passportSubscribeButton?.addEventListener('click', () => {
-  const bot = window.MIGRI_CONFIG?.TELEGRAM_BOT_USERNAME
-  if (!bot || bot.includes('REPLACE_WITH')) {
-    if (passportFormMessage) passportFormMessage.textContent = 'The Telegram bot is not connected yet. Add its username in config.js.'
-    return
-  }
-  window.open(`https://t.me/${bot}?start=passport_berlin`, '_blank', 'noopener,noreferrer')
-  if (passportFormMessage) passportFormMessage.textContent = 'Telegram opened. Press Start. The bot will send the current passport times first.'
 })

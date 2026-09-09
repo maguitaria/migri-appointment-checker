@@ -6,7 +6,7 @@ let stopped = false
 
 function runCheck() {
   return new Promise((resolve) => {
-    const child = spawn(process.execPath, ['check-all.mjs'], { stdio: 'inherit', env: process.env })
+    const child = spawn(process.execPath, ['watcher.mjs'], { stdio: 'inherit', env: process.env })
     child.on('close', (code) => {
       console.log(`[runner] check finished with code ${code ?? 'unknown'}`)
       resolve()
