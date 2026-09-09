@@ -53,8 +53,9 @@ fetch(`state.json?ts=${Date.now()}`)
   .then((response) => (response.ok ? response.json() : null))
   .then((state) => {
     if (!state) throw new Error('Slot data is unavailable')
-    if (statusText) statusText.textContent = state.status === 'ok' ? 'Runner online' : 'Runner needs attention'
-    if (lastCheckedText && state.checkedAt) lastCheckedText.textContent = `Last checked ${new Date(state.checkedAt).toLocaleString()}`
+    const failures = Array.isArray(state.failures) ? state.failures.length : 0
+    if (statusText) statusText.textContent = state.status === 'ok' ? 'Runner online' : failures ? `Runner online · ${failures} checks incomplete` : 'Runner needs attention'
+    if (lastCheckedText && state.checkedAt) lastCheckedText.textContent = `Last checked ${new Date(state.checkedAt).toLocaleString()}${failures ? ' · failed checks retry automatically' : ''}`
     allSlots = state.availableSlots || []
     renderSlots()
   })
