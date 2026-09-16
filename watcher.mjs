@@ -30,13 +30,13 @@ async function findSlots(browser, locationId, flowId) {
   const location = locations[locationId]
   const flow = flows[flowId]
   if (!location || !flow) throw new Error(`Unsupported location or flow: ${locationId}/${flowId}`)
-  const page = await browser.newPage()
+  const page = await browser.newPage({ userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36' })
 
   try {
-    await page.goto(BOOKING_URL, { waitUntil: 'domcontentloaded', timeout: 60_000 })
+    await page.goto(BOOKING_URL, { waitUntil: 'domcontentloaded', timeout: 45_000 })
     await page.waitForTimeout(700)
     const newAppointmentLink = page.getByRole('link', { name: 'Varaa uusi aika' })
-    await newAppointmentLink.waitFor({ state: 'visible', timeout: 45_000 })
+    await newAppointmentLink.waitFor({ state: 'visible', timeout: 15_000 })
     await newAppointmentLink.click({ timeout: 10_000 })
     await page.getByRole('button', { name: 'Valitse palvelukategoria' }).click()
     await page.getByRole('option', { name: flow.category }).click()
@@ -49,7 +49,7 @@ async function findSlots(browser, locationId, flowId) {
 
     const slots = []
     const weekLinks = page.locator('a.week-indicatorsLink:visible')
-    const weekCount = await weekLinks.count()
+    const weekCount = Math.min(await weekLinks.count(), 12)
     for (let weekIndex = 0; weekIndex < weekCount; weekIndex += 1) {
       await weekLinks.nth(weekIndex).click()
       await page.waitForTimeout(450)
@@ -143,14 +143,22 @@ try {
     if (!locations[locationId]) continue
     const flowIds = Object.keys(flows)
     const foundByFlow = []
-    for (const flowId of flowIds) {
-      try {
-        foundByFlow.push({ flowId, slots: await findSlotsWithRetry(browser, locationId, flowId) })
-      } catch (error) {
-        const message = error instanceof Error ? error.message : String(error)
-        failures.push(`${locationId}/${flowId}: ${message}`)
-        console.error(`Scan failed for ${locationId}/${flowId}: ${message}`)
-      }
+    
+    for (let i = 0; i < flowIds.length; i += 2) {
+      const batch = flowIds.slice(i, i + 2)
+      const results = await Promise.allSettled(batch.map((flowId) => findSlotsWithRetry(browser, locationId, flowId)))
+      
+      results.forEach((result, index) => {
+        const flowId = batch[index]
+        if (result.status === 'fulfilled') {
+          foundByFlow.push({ flowId, slots: result.value })
+        } else {
+          const error = result.reason
+          const message = error instanceof Error ? error.message : String(error)
+          failures.push(`${locationId}/${flowId}: ${message}`)
+          console.error(`Scan failed for ${locationId}/${flowId}: ${message}`)
+        }
+      })
     }
 
     const oldSlots = previous.alerts?.[locationId] || []
