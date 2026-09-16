@@ -27,6 +27,25 @@ function updateSubscribeButton() {
   if (subscribeButton) subscribeButton.innerHTML = `Get ${escapeHtml(selectedLocationLabel())} alerts in Telegram <span>↗</span>`
 }
 
+function reasonsFor(slot) {
+  const reasons = Array.isArray(slot.flows) ? slot.flows : [slot.flow]
+  return [...new Set(reasons.filter(Boolean))]
+}
+
+function collapseSlots(slots) {
+  const grouped = new Map()
+  for (const slot of slots) {
+    const key = `${slot.location}|${slot.date}|${slot.time}`
+    const existing = grouped.get(key)
+    if (existing) {
+      existing.flows.push(...reasonsFor(slot))
+    } else {
+      grouped.set(key, { ...slot, flows: reasonsFor(slot) })
+    }
+  }
+  return [...grouped.values()].map((slot) => ({ ...slot, flows: [...new Set(slot.flows)] }))
+}
+
 function renderSlots() {
   const slotList = document.querySelector('#slot-list')
   if (!slotList) return
@@ -34,7 +53,7 @@ function renderSlots() {
   const pageCount = Math.max(1, Math.ceil(filtered.length / pageSize))
   page = Math.min(page, pageCount)
   const visible = filtered.slice((page - 1) * pageSize, page * pageSize)
-  slotList.innerHTML = visible.length ? visible.map(({ location, date, time, flow }) => `<li><b>${escapeHtml(date || 'Date pending')} · ${escapeHtml(time)}</b><span>${escapeHtml(location)} · ${escapeHtml(flow || 'Reason pending')}</span></li>`).join('') : '<li class="empty-slot">No slots in this selection.</li>'
+  slotList.innerHTML = visible.length ? visible.map(({ location, date, time, flows }) => `<li><b>${escapeHtml(date || 'Date pending')} · ${escapeHtml(time)}</b><span>${escapeHtml(location)} · ${escapeHtml(flows?.join(', ') || 'Reason pending')}</span></li>`).join('') : '<li class="empty-slot">No slots in this selection.</li>'
   const first = filtered.length ? (page - 1) * pageSize + 1 : 0
   const last = Math.min(page * pageSize, filtered.length)
   if (pageInfo) pageInfo.textContent = filtered.length ? `Showing ${first}–${last} of ${filtered.length}` : '0 slots'
@@ -56,7 +75,7 @@ fetch(`state.json?ts=${Date.now()}`)
     const failures = Array.isArray(state.failures) ? state.failures.length : 0
     if (statusText) statusText.textContent = state.status === 'ok' ? 'Runner online' : failures ? `Runner online · ${failures} checks incomplete` : 'Runner needs attention'
     if (lastCheckedText && state.checkedAt) lastCheckedText.textContent = `Last checked ${new Date(state.checkedAt).toLocaleString()}${failures ? ' · failed checks retry automatically' : ''}`
-    allSlots = state.availableSlots || []
+    allSlots = collapseSlots(state.availableSlots || [])
     renderSlots()
   })
   .catch(() => {

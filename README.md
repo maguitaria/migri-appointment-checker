@@ -154,7 +154,7 @@ Use either GitHub Actions or `npm run runner`, not both for the same bot subscri
 
 The website is a public control panel. A user selects a location, then opens the shared Telegram bot. The bot stores only the Telegram chat ID, selected location, and active status in the private D1 database.
 
-The scheduled runner checks all configured residence-permit flows and the next ten visible Migri weeks for every supported location every 30 minutes. The public page sorts the results by earliest date/time and paginates them. Each result includes the exact date, time, location, and reason that produced it. Results are combined and deduplicated, then compared with the previous check. When a user subscribes, the bot sends the first 20 current times and links to the full paginated list. After that, a new time is sent once to subscribers watching that location; it is not repeated every 30 minutes while the same slot remains visible. The service never reserves an appointment and never enters identity or application data.
+The scheduled runner checks all configured residence-permit flows and the next ten visible Migri weeks for every supported location every 30 minutes. The public page sorts the results by earliest date/time and paginates them. A date and time appears once per location, with every available visit reason shown together. Results are combined and deduplicated, then compared with the previous check. When a user subscribes, the bot sends the first 20 current times and links to the full paginated list. After that, a new time is sent once to subscribers watching that location; it is not repeated every 30 minutes while the same slot remains visible. The service never reserves an appointment and never enters identity or application data.
 
 ## User flow
 
