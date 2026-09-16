@@ -7,7 +7,7 @@ The service:
 - lets a visitor choose any supported Finnish Migri service point;
 - opens the Telegram bot with that preference;
 - stores the user’s Telegram chat ID privately in Cloudflare D1;
-- checks every supported location with a read-only browser runner every 15 minutes;
+- checks every supported location with a read-only browser runner every 30 minutes;
 - sends the current earliest times immediately after a user subscribes;
 - sends a Telegram alert when a new time appears;
 - never enters personal data or books an appointment.
@@ -131,7 +131,7 @@ https://YOUR_GITHUB_USERNAME.github.io/migri-appointment-checker/
 
 ### 6. Start monitoring
 
-The `Check Migri appointments every 15 minutes` workflow runs every 15 minutes for every supported location. It stores the last result in `state.json`, so the same slot is not sent repeatedly. Checks use one shared browser and one permit reason at a time, with one retry for transient page failures; if an office check still fails, its last known results are kept instead of being erased.
+The `Check Migri appointments every 30 minutes` workflow runs every 30 minutes for every supported location. It stores the last result in `state.json`, so the same slot is not sent repeatedly. Checks use one shared browser and one permit reason at a time, with one retry for transient page failures; if an office check still fails, its last known results are kept instead of being erased.
 
 For local development:
 
@@ -154,7 +154,7 @@ Use either GitHub Actions or `npm run runner`, not both for the same bot subscri
 
 The website is a public control panel. A user selects a location, then opens the shared Telegram bot. The bot stores only the Telegram chat ID, selected location, and active status in the private D1 database.
 
-The scheduled runner checks all configured residence-permit flows and the next ten visible Migri weeks for every supported location every 15 minutes. The public page sorts the results by earliest date/time and paginates them. Each result includes the exact date, time, location, and reason that produced it. Results are combined and deduplicated, then compared with the previous check. When a user subscribes, the bot sends the first 20 current times and links to the full paginated list. After that, a new time is sent once to subscribers watching that location; it is not repeated every 15 minutes while the same slot remains visible. The service never reserves an appointment and never enters identity or application data.
+The scheduled runner checks all configured residence-permit flows and the next ten visible Migri weeks for every supported location every 30 minutes. The public page sorts the results by earliest date/time and paginates them. Each result includes the exact date, time, location, and reason that produced it. Results are combined and deduplicated, then compared with the previous check. When a user subscribes, the bot sends the first 20 current times and links to the full paginated list. After that, a new time is sent once to subscribers watching that location; it is not repeated every 30 minutes while the same slot remains visible. The service never reserves an appointment and never enters identity or application data.
 
 ## User flow
 
