@@ -1,4 +1,4 @@
-name: Check Migri appointments every 15 minutes
+name: Check Migri appointments every 30 minutes
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
       - state.json
   workflow_dispatch:
   schedule:
-    - cron: '*/15 * * * *'
+    - cron: '*/30 * * * *'
 
 permissions:
   contents: write
@@ -21,7 +21,7 @@ concurrency:
 jobs:
   check:
     runs-on: ubuntu-latest
-    timeout-minutes: 14
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
