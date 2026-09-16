@@ -106,6 +106,11 @@ function localizedFlow(flow, language) {
   return flowLabels[language]?.[flow] || flow
 }
 
+function localizedReasons(slot, language) {
+  const reasons = Array.isArray(slot.flows) ? slot.flows : [slot.flow]
+  return [...new Set(reasons.filter(Boolean))].map((reason) => localizedFlow(reason, language)).join(', ') || localizedFlow('Migri appointment', language)
+}
+
 function headers(origin = '*') {
   return { 'Access-Control-Allow-Origin': origin, 'Access-Control-Allow-Headers': 'content-type, authorization, x-telegram-bot-api-secret-token', 'Access-Control-Allow-Methods': 'GET, POST, OPTIONS', 'Content-Type': 'application/json' }
 }
@@ -126,9 +131,16 @@ async function sendCurrentAvailability(env, chatId, location, language) {
     const response = await fetch(`${publicSite}state.json?ts=${Date.now()}`)
     if (!response.ok) throw new Error(`state.json returned ${response.status}`)
     const state = await response.json()
-    const slots = (state.availableSlots || []).filter((slot) => slot.location === location)
+    const groupedSlots = new Map()
+    for (const slot of (state.availableSlots || []).filter((slot) => slot.location === location)) {
+      const key = `${slot.date}|${slot.time}`
+      const existing = groupedSlots.get(key)
+      if (existing) existing.flows.push(...(Array.isArray(slot.flows) ? slot.flows : [slot.flow]))
+      else groupedSlots.set(key, { ...slot, flows: Array.isArray(slot.flows) ? [...slot.flows] : [slot.flow] })
+    }
+    const slots = [...groupedSlots.values()].map((slot) => ({ ...slot, flows: [...new Set(slot.flows.filter(Boolean))] }))
     const shown = slots.slice(0, 20)
-    const lines = shown.map((slot) => `• ${slot.date} ${slot.time} — ${localizedFlow(slot.flow || 'Migri appointment', language)}`)
+    const lines = shown.map((slot) => `• ${slot.date} ${slot.time} — ${localizedReasons(slot, language)}`)
     const fullListUrl = `${publicSite}?location=${encodeURIComponent(location)}#slots`
     const text = [
       copy.currentTitle(location),

@@ -98,7 +98,7 @@ async function getSubscriptions() {
 async function sendTelegram(locationId, slots, subscriptions) {
   const location = locations[locationId]
   const recipients = [...new Set(subscriptions.map((subscription) => String(subscription.chat_id)))]
-  const lines = slots.map((slot) => `• ${slot.date} ${slot.time} — ${slot.flow}`)
+  const lines = slots.map((slot) => `• ${slot.date} ${slot.time} — ${(slot.flows || [slot.flow]).filter(Boolean).join(', ')}`)
   const chunks = []
   let chunk = []
   for (const line of lines) {
@@ -132,7 +132,8 @@ const slotOrder = (a, b) => {
     const [day, month, year] = slot.date.split('.').map(Number)
     return new Date(year, month - 1, day, ...slot.time.split(':').map(Number)).getTime()
   }
-  return dateValue(a) - dateValue(b) || a.location.localeCompare(b.location) || a.flow.localeCompare(b.flow)
+  const reasons = (slot) => (slot.flows || [slot.flow]).filter(Boolean).join(', ')
+  return dateValue(a) - dateValue(b) || a.location.localeCompare(b.location) || reasons(a).localeCompare(reasons(b))
 }
 
 const browser = await chromium.launch({ headless: true })
@@ -165,24 +166,61 @@ try {
     if (foundByFlow.length !== flowIds.length) {
       console.error(`Keeping the previous ${locationId} result because one or more permit reasons failed.`)
       alerts[locationId] = oldSlots
-      availableSlots.push(...oldSlots.filter((slot) => typeof slot === 'object').map(({ date, time, flow }) => ({ location: locationId, date, time, flow })))
+      availableSlots.push(...oldSlots.filter((slot) => typeof slot === 'object').map((slot) => ({ ...slot, location: locationId })))
       continue
     }
 
-    const slots = foundByFlow.flatMap(({ flowId, slots: flowSlots }) => flowSlots.map((slot) => ({ ...slot, flow: flows[flowId].label, flowId })))
-    const uniqueSlots = [...new Map(slots.map((slot) => [`${slot.date}|${slot.time}|${slot.flowId}`, slot])).values()]
-    const oldKeys = new Set(oldSlots.map((slot) => typeof slot === 'string' ? `${slot}|legacy` : `${slot.date}|${slot.time}|${slot.flowId}`))
-    const newSlots = uniqueSlots.filter((slot) => !oldKeys.has(`${slot.date}|${slot.time}|${slot.flowId}`))
+    const groupedSlotsMap = new Map()
+    for (const { flowId, slots: flowSlots } of foundByFlow) {
+      for (const slot of flowSlots) {
+        const key = `${slot.date}|${slot.time}`
+        if (!groupedSlotsMap.has(key)) {
+          groupedSlotsMap.set(key, { ...slot, flows: [flows[flowId].label], flowIds: [flowId] })
+        } else {
+          const existing = groupedSlotsMap.get(key)
+          existing.flows.push(flows[flowId].label)
+          existing.flowIds.push(flowId)
+        }
+      }
+    }
+    const uniqueSlots = [...groupedSlotsMap.values()]
+
+    const oldKeys = new Set()
+    for (const slot of oldSlots) {
+      if (typeof slot === 'string') {
+        oldKeys.add(`${slot}|legacy`)
+      } else if (slot.flowIds) {
+        slot.flowIds.forEach(id => oldKeys.add(`${slot.date}|${slot.time}|${id}`))
+      } else if (slot.flowId) {
+        oldKeys.add(`${slot.date}|${slot.time}|${slot.flowId}`)
+      }
+    }
+
+    const newSlots = []
+    for (const slot of uniqueSlots) {
+      const newFlowIds = []
+      const newFlows = []
+      for (let i = 0; i < slot.flowIds.length; i++) {
+        if (!oldKeys.has(`${slot.date}|${slot.time}|${slot.flowIds[i]}`)) {
+          newFlowIds.push(slot.flowIds[i])
+          newFlows.push(slot.flows[i])
+        }
+      }
+      if (newFlowIds.length > 0) {
+        newSlots.push({ ...slot, flowIds: newFlowIds, flows: newFlows })
+      }
+    }
+
     if (newSlots.length > 0 && group.length > 0 && process.env.DRY_RUN !== 'true') await sendTelegram(locationId, newSlots, group)
-    if (newSlots.length > 0) console.log(`${process.env.DRY_RUN === 'true' ? 'Dry run — ' : ''}${locationId}: ${newSlots.map((slot) => `${slot.date} ${slot.time} — ${slot.flow}`).join(' | ')}`)
+    if (newSlots.length > 0) console.log(`${process.env.DRY_RUN === 'true' ? 'Dry run — ' : ''}${locationId}: ${newSlots.map((slot) => `${slot.date} ${slot.time} — ${slot.flows.join(', ')}`).join(' | ')}`)
     else console.log(`${locationId}: no new slots; visible slots: ${uniqueSlots.length}`)
     uniqueSlots.sort((a, b) => slotOrder({ ...a, location: locationId }, { ...b, location: locationId }))
     alerts[locationId] = uniqueSlots
-    availableSlots.push(...uniqueSlots.map(({ date, time, flow }) => ({ location: locationId, date, time, flow })))
+    availableSlots.push(...uniqueSlots.map((slot) => ({ ...slot, location: locationId })))
   }
 } finally {
   await browser.close()
 }
 
 availableSlots.sort(slotOrder)
-writeFileSync(stateFile, JSON.stringify({ status: failures.length ? 'partial' : 'ok', alerts, slots: availableSlots.map(({ date, time, flow }) => `${date} ${time} — ${flow}`), availableSlots, checkedAt: new Date().toISOString(), failures, check: 'All residence-permit flows for all supported locations', bookingUrl: BOOKING_URL }, null, 2))
+writeFileSync(stateFile, JSON.stringify({ status: failures.length ? 'partial' : 'ok', alerts, slots: availableSlots.map((slot) => `${slot.date} ${slot.time} — ${(slot.flows || [slot.flow]).filter(Boolean).join(', ')}`), availableSlots, checkedAt: new Date().toISOString(), failures, check: 'All residence-permit flows for all supported locations', bookingUrl: BOOKING_URL }, null, 2))
