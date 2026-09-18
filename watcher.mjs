@@ -113,7 +113,17 @@ async function sendTelegram(locationId, slots, subscriptions) {
     for (let index = 0; index < chunks.length; index += 1) {
       const text = [`Migri availability in ${location.label} · part ${index + 1}/${chunks.length}`, '', ...chunks[index], '', 'This alert does not reserve an appointment. Complete the booking manually on Migri.'].join('\n')
       const response = await fetch(`https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}/sendMessage`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ chat_id, text, reply_markup: { inline_keyboard: [[{ text: 'Open Migri booking now', url: BOOKING_URL }]] } }) })
-      if (!response.ok) throw new Error(`Telegram failed: ${response.status} ${await response.text()}`)
+      if (!response.ok) {
+        const body = await response.text()
+        // A user can block the bot after subscribing. This affects only that
+        // recipient, so do not prevent delivery to everyone else or lose the
+        // successfully scanned state for this run.
+        if (response.status === 403 && /bot was blocked by the user/i.test(body)) {
+          console.warn(`Skipping Telegram chat ${chat_id}: bot was blocked by the user.`)
+          break
+        }
+        throw new Error(`Telegram failed: ${response.status} ${body}`)
+      }
       await new Promise((resolve) => setTimeout(resolve, 75))
     }
   }
