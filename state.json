@@ -3970,22 +3970,6 @@
     ],
     "Turku": [
       {
-        "date": "24.11.2026",
-        "time": "08:15",
-        "flows": [
-          "Residence permit · Work",
-          "Residence permit · Family",
-          "Residence permit · Study",
-          "Residence permit · Permanent"
-        ],
-        "flowIds": [
-          "residence_work",
-          "residence_family",
-          "residence_study",
-          "residence_permanent"
-        ]
-      },
-      {
         "date": "25.11.2026",
         "time": "10:30",
         "flows": [
@@ -5736,7 +5720,6 @@
     "23.11.2026 15:15 — Residence permit · Work, Residence permit · Family",
     "24.11.2026 08:15 — Residence permit · Work, Residence permit · Family, Residence permit · Study, Residence permit · Permanent",
     "24.11.2026 08:15 — Residence permit · Work, Residence permit · Family, Residence permit · Study, Residence permit · Permanent",
-    "24.11.2026 08:15 — Residence permit · Work, Residence permit · Family, Residence permit · Study, Residence permit · Permanent",
     "24.11.2026 08:45 — Residence permit · Work, Residence permit · Family, Residence permit · Study, Residence permit · Permanent",
     "25.11.2026 10:30 — Residence permit · Work, Residence permit · Family, Residence permit · Study, Residence permit · Permanent",
     "25.11.2026 10:30 — Residence permit · Work, Residence permit · Family, Residence permit · Study, Residence permit · Permanent",
@@ -6311,23 +6294,6 @@
         "residence_permanent"
       ],
       "location": "Tampere"
-    },
-    {
-      "date": "24.11.2026",
-      "time": "08:15",
-      "flows": [
-        "Residence permit · Work",
-        "Residence permit · Family",
-        "Residence permit · Study",
-        "Residence permit · Permanent"
-      ],
-      "flowIds": [
-        "residence_work",
-        "residence_family",
-        "residence_study",
-        "residence_permanent"
-      ],
-      "location": "Turku"
     },
     {
       "date": "24.11.2026",
@@ -12165,7 +12131,7 @@
       "location": "Vaasa"
     }
   ],
-  "checkedAt": "2026-09-19T21:25:20.621Z",
+  "checkedAt": "2026-09-19T23:27:55.849Z",
   "failures": [],
   "check": "All residence-permit flows for all supported locations",
   "bookingUrl": "https://migri.vihta.com/public/migri/"
