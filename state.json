@@ -520,22 +520,6 @@
     ],
     "Lahti": [
       {
-        "date": "30.12.2026",
-        "time": "12:30",
-        "flows": [
-          "Residence permit · Work",
-          "Residence permit · Family",
-          "Residence permit · Study",
-          "Residence permit · Permanent"
-        ],
-        "flowIds": [
-          "residence_work",
-          "residence_family",
-          "residence_study",
-          "residence_permanent"
-        ]
-      },
-      {
         "date": "01.02.2027",
         "time": "08:15",
         "flows": [
@@ -2976,22 +2960,6 @@
     ],
     "Tampere": [
       {
-        "date": "22.09.2026",
-        "time": "13:30",
-        "flows": [
-          "Residence permit · Work",
-          "Residence permit · Family",
-          "Residence permit · Study",
-          "Residence permit · Permanent"
-        ],
-        "flowIds": [
-          "residence_work",
-          "residence_family",
-          "residence_study",
-          "residence_permanent"
-        ]
-      },
-      {
         "date": "28.12.2026",
         "time": "08:15",
         "flows": [
@@ -4113,6 +4081,22 @@
       }
     ],
     "Turku": [
+      {
+        "date": "23.09.2026",
+        "time": "10:00",
+        "flows": [
+          "Residence permit · Work",
+          "Residence permit · Family",
+          "Residence permit · Study",
+          "Residence permit · Permanent"
+        ],
+        "flowIds": [
+          "residence_work",
+          "residence_family",
+          "residence_study",
+          "residence_permanent"
+        ]
+      },
       {
         "date": "28.12.2026",
         "time": "08:15",
@@ -5862,7 +5846,7 @@
     ]
   },
   "slots": [
-    "22.09.2026 13:30 — Residence permit · Work, Residence permit · Family, Residence permit · Study, Residence permit · Permanent",
+    "23.09.2026 10:00 — Residence permit · Work, Residence permit · Family, Residence permit · Study, Residence permit · Permanent",
     "14.10.2026 13:00 — Residence permit · Work, Residence permit · Family, Residence permit · Study, Residence permit · Permanent",
     "30.10.2026 08:45 — Residence permit · Work, Residence permit · Family, Residence permit · Study, Residence permit · Permanent",
     "09.11.2026 08:15 — Residence permit · Work, Residence permit · Family, Residence permit · Study, Residence permit · Permanent",
@@ -5989,7 +5973,6 @@
     "30.12.2026 11:30 — Residence permit · Work, Residence permit · Family, Residence permit · Study, Residence permit · Permanent",
     "30.12.2026 12:00 — Residence permit · Work, Residence permit · Family, Residence permit · Study, Residence permit · Permanent",
     "30.12.2026 12:00 — Residence permit · Work, Residence permit · Family, Residence permit · Study, Residence permit · Permanent",
-    "30.12.2026 12:30 — Residence permit · Work, Residence permit · Family, Residence permit · Study, Residence permit · Permanent",
     "30.12.2026 12:30 — Residence permit · Work, Residence permit · Family, Residence permit · Study, Residence permit · Permanent",
     "30.12.2026 12:30 — Residence permit · Work, Residence permit · Family, Residence permit · Study, Residence permit · Permanent",
     "30.12.2026 12:30 — Residence permit · Work, Residence permit · Family, Residence permit · Study, Residence permit · Permanent",
@@ -6243,8 +6226,8 @@
   ],
   "availableSlots": [
     {
-      "date": "22.09.2026",
-      "time": "13:30",
+      "date": "23.09.2026",
+      "time": "10:00",
       "flows": [
         "Residence permit · Work",
         "Residence permit · Family",
@@ -6257,7 +6240,7 @@
         "residence_study",
         "residence_permanent"
       ],
-      "location": "Tampere"
+      "location": "Turku"
     },
     {
       "date": "14.10.2026",
@@ -8312,23 +8295,6 @@
         "residence_permanent"
       ],
       "location": "Turku"
-    },
-    {
-      "date": "30.12.2026",
-      "time": "12:30",
-      "flows": [
-        "Residence permit · Work",
-        "Residence permit · Family",
-        "Residence permit · Study",
-        "Residence permit · Permanent"
-      ],
-      "flowIds": [
-        "residence_work",
-        "residence_family",
-        "residence_study",
-        "residence_permanent"
-      ],
-      "location": "Lahti"
     },
     {
       "date": "30.12.2026",
@@ -12461,7 +12427,7 @@
       "location": "Vaasa"
     }
   ],
-  "checkedAt": "2026-09-21T22:49:04.011Z",
+  "checkedAt": "2026-09-22T01:34:15.966Z",
   "failures": [],
   "check": "All residence-permit flows for all supported locations",
   "bookingUrl": "https://migri.vihta.com/public/migri/"
