@@ -1,42 +1,9 @@
 {
   "status": "ok",
   "alerts": {
-    "Ahvenanmaa": [
-      {
-        "date": "13.11.2026",
-        "time": "10:15",
-        "flows": [
-          "Residence permit · Work",
-          "Residence permit · Family",
-          "Residence permit · Study",
-          "Residence permit · Permanent"
-        ],
-        "flowIds": [
-          "residence_work",
-          "residence_family",
-          "residence_study",
-          "residence_permanent"
-        ]
-      }
-    ],
+    "Ahvenanmaa": [],
     "Helsinki": [],
     "Kuopio": [
-      {
-        "date": "30.11.2026",
-        "time": "09:30",
-        "flows": [
-          "Residence permit · Work",
-          "Residence permit · Family",
-          "Residence permit · Study",
-          "Residence permit · Permanent"
-        ],
-        "flowIds": [
-          "residence_work",
-          "residence_family",
-          "residence_study",
-          "residence_permanent"
-        ]
-      },
       {
         "date": "01.12.2026",
         "time": "08:15",
@@ -3954,6 +3921,38 @@
     ],
     "Turku": [
       {
+        "date": "23.09.2026",
+        "time": "14:45",
+        "flows": [
+          "Residence permit · Work",
+          "Residence permit · Family",
+          "Residence permit · Study",
+          "Residence permit · Permanent"
+        ],
+        "flowIds": [
+          "residence_work",
+          "residence_family",
+          "residence_study",
+          "residence_permanent"
+        ]
+      },
+      {
+        "date": "23.09.2026",
+        "time": "15:15",
+        "flows": [
+          "Residence permit · Work",
+          "Residence permit · Family",
+          "Residence permit · Study",
+          "Residence permit · Permanent"
+        ],
+        "flowIds": [
+          "residence_work",
+          "residence_family",
+          "residence_study",
+          "residence_permanent"
+        ]
+      },
+      {
         "date": "28.12.2026",
         "time": "08:15",
         "flows": [
@@ -5076,6 +5075,18 @@
     ],
     "Vaasa": [
       {
+        "date": "10.11.2026",
+        "time": "08:15",
+        "flows": [
+          "Residence permit · Work",
+          "Residence permit · Family"
+        ],
+        "flowIds": [
+          "residence_work",
+          "residence_family"
+        ]
+      },
+      {
         "date": "28.12.2026",
         "time": "08:15",
         "flows": [
@@ -5678,8 +5689,9 @@
     ]
   },
   "slots": [
-    "13.11.2026 10:15 — Residence permit · Work, Residence permit · Family, Residence permit · Study, Residence permit · Permanent",
-    "30.11.2026 09:30 — Residence permit · Work, Residence permit · Family, Residence permit · Study, Residence permit · Permanent",
+    "23.09.2026 14:45 — Residence permit · Work, Residence permit · Family, Residence permit · Study, Residence permit · Permanent",
+    "23.09.2026 15:15 — Residence permit · Work, Residence permit · Family, Residence permit · Study, Residence permit · Permanent",
+    "10.11.2026 08:15 — Residence permit · Work, Residence permit · Family",
     "01.12.2026 08:15 — Residence permit · Work, Residence permit · Family, Residence permit · Study, Residence permit · Permanent",
     "28.12.2026 08:15 — Residence permit · Work, Residence permit · Family, Residence permit · Study, Residence permit · Permanent",
     "28.12.2026 08:15 — Residence permit · Work, Residence permit · Family, Residence permit · Study, Residence permit · Permanent",
@@ -6047,8 +6059,8 @@
   ],
   "availableSlots": [
     {
-      "date": "13.11.2026",
-      "time": "10:15",
+      "date": "23.09.2026",
+      "time": "14:45",
       "flows": [
         "Residence permit · Work",
         "Residence permit · Family",
@@ -6061,11 +6073,11 @@
         "residence_study",
         "residence_permanent"
       ],
-      "location": "Ahvenanmaa"
+      "location": "Turku"
     },
     {
-      "date": "30.11.2026",
-      "time": "09:30",
+      "date": "23.09.2026",
+      "time": "15:15",
       "flows": [
         "Residence permit · Work",
         "Residence permit · Family",
@@ -6078,7 +6090,20 @@
         "residence_study",
         "residence_permanent"
       ],
-      "location": "Kuopio"
+      "location": "Turku"
+    },
+    {
+      "date": "10.11.2026",
+      "time": "08:15",
+      "flows": [
+        "Residence permit · Work",
+        "Residence permit · Family"
+      ],
+      "flowIds": [
+        "residence_work",
+        "residence_family"
+      ],
+      "location": "Vaasa"
     },
     {
       "date": "01.12.2026",
@@ -12069,7 +12094,7 @@
       "location": "Vaasa"
     }
   ],
-  "checkedAt": "2026-09-23T01:45:39.419Z",
+  "checkedAt": "2026-09-23T07:36:49.464Z",
   "failures": [],
   "check": "All residence-permit flows for all supported locations",
   "bookingUrl": "https://migri.vihta.com/public/migri/"
