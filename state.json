@@ -1,7 +1,56 @@
 {
   "status": "ok",
   "alerts": {
-    "Ahvenanmaa": [],
+    "Ahvenanmaa": [
+      {
+        "date": "24.09.2026",
+        "time": "09:30",
+        "flows": [
+          "Residence permit · Work",
+          "Residence permit · Family",
+          "Residence permit · Study",
+          "Residence permit · Permanent"
+        ],
+        "flowIds": [
+          "residence_work",
+          "residence_family",
+          "residence_study",
+          "residence_permanent"
+        ]
+      },
+      {
+        "date": "24.09.2026",
+        "time": "10:00",
+        "flows": [
+          "Residence permit · Work",
+          "Residence permit · Family",
+          "Residence permit · Study",
+          "Residence permit · Permanent"
+        ],
+        "flowIds": [
+          "residence_work",
+          "residence_family",
+          "residence_study",
+          "residence_permanent"
+        ]
+      },
+      {
+        "date": "24.09.2026",
+        "time": "10:30",
+        "flows": [
+          "Residence permit · Work",
+          "Residence permit · Family",
+          "Residence permit · Study",
+          "Residence permit · Permanent"
+        ],
+        "flowIds": [
+          "residence_work",
+          "residence_family",
+          "residence_study",
+          "residence_permanent"
+        ]
+      }
+    ],
     "Helsinki": [],
     "Kuopio": [
       {
@@ -872,6 +921,38 @@
       }
     ],
     "Lappeenranta": [
+      {
+        "date": "13.11.2026",
+        "time": "14:15",
+        "flows": [
+          "Residence permit · Work",
+          "Residence permit · Family",
+          "Residence permit · Study",
+          "Residence permit · Permanent"
+        ],
+        "flowIds": [
+          "residence_work",
+          "residence_family",
+          "residence_study",
+          "residence_permanent"
+        ]
+      },
+      {
+        "date": "13.11.2026",
+        "time": "14:45",
+        "flows": [
+          "Residence permit · Work",
+          "Residence permit · Family",
+          "Residence permit · Study",
+          "Residence permit · Permanent"
+        ],
+        "flowIds": [
+          "residence_work",
+          "residence_family",
+          "residence_study",
+          "residence_permanent"
+        ]
+      },
       {
         "date": "28.12.2026",
         "time": "08:15",
@@ -1852,38 +1933,6 @@
       },
       {
         "date": "30.12.2026",
-        "time": "10:00",
-        "flows": [
-          "Residence permit · Work",
-          "Residence permit · Family",
-          "Residence permit · Study",
-          "Residence permit · Permanent"
-        ],
-        "flowIds": [
-          "residence_work",
-          "residence_family",
-          "residence_study",
-          "residence_permanent"
-        ]
-      },
-      {
-        "date": "30.12.2026",
-        "time": "10:30",
-        "flows": [
-          "Residence permit · Work",
-          "Residence permit · Family",
-          "Residence permit · Study",
-          "Residence permit · Permanent"
-        ],
-        "flowIds": [
-          "residence_work",
-          "residence_family",
-          "residence_study",
-          "residence_permanent"
-        ]
-      },
-      {
-        "date": "30.12.2026",
         "time": "12:00",
         "flows": [
           "Residence permit · Work",
@@ -1949,6 +1998,38 @@
       {
         "date": "30.12.2026",
         "time": "14:15",
+        "flows": [
+          "Residence permit · Work",
+          "Residence permit · Family",
+          "Residence permit · Study",
+          "Residence permit · Permanent"
+        ],
+        "flowIds": [
+          "residence_work",
+          "residence_family",
+          "residence_study",
+          "residence_permanent"
+        ]
+      },
+      {
+        "date": "30.12.2026",
+        "time": "14:45",
+        "flows": [
+          "Residence permit · Work",
+          "Residence permit · Family",
+          "Residence permit · Study",
+          "Residence permit · Permanent"
+        ],
+        "flowIds": [
+          "residence_work",
+          "residence_family",
+          "residence_study",
+          "residence_permanent"
+        ]
+      },
+      {
+        "date": "30.12.2026",
+        "time": "15:15",
         "flows": [
           "Residence permit · Work",
           "Residence permit · Family",
@@ -4996,7 +5077,7 @@
     "Vaasa": [
       {
         "date": "01.12.2026",
-        "time": "10:00",
+        "time": "11:00",
         "flows": [
           "Residence permit · Work",
           "Residence permit · Family",
@@ -5813,8 +5894,13 @@
     ]
   },
   "slots": [
+    "24.09.2026 09:30 — Residence permit · Work, Residence permit · Family, Residence permit · Study, Residence permit · Permanent",
+    "24.09.2026 10:00 — Residence permit · Work, Residence permit · Family, Residence permit · Study, Residence permit · Permanent",
+    "24.09.2026 10:30 — Residence permit · Work, Residence permit · Family, Residence permit · Study, Residence permit · Permanent",
+    "13.11.2026 14:15 — Residence permit · Work, Residence permit · Family, Residence permit · Study, Residence permit · Permanent",
+    "13.11.2026 14:45 — Residence permit · Work, Residence permit · Family, Residence permit · Study, Residence permit · Permanent",
     "30.11.2026 09:30 — Residence permit · Work, Residence permit · Family, Residence permit · Study, Residence permit · Permanent",
-    "01.12.2026 10:00 — Residence permit · Work, Residence permit · Family, Residence permit · Study, Residence permit · Permanent",
+    "01.12.2026 11:00 — Residence permit · Work, Residence permit · Family, Residence permit · Study, Residence permit · Permanent",
     "28.12.2026 08:15 — Residence permit · Work, Residence permit · Family, Residence permit · Study, Residence permit · Permanent",
     "28.12.2026 08:15 — Residence permit · Work, Residence permit · Family, Residence permit · Study, Residence permit · Permanent",
     "28.12.2026 08:15 — Residence permit · Work, Residence permit · Family, Residence permit · Study, Residence permit · Permanent",
@@ -5918,8 +6004,6 @@
     "30.12.2026 09:30 — Residence permit · Work, Residence permit · Family, Residence permit · Study, Residence permit · Permanent",
     "30.12.2026 10:00 — Residence permit · Work, Residence permit · Family, Residence permit · Study, Residence permit · Permanent",
     "30.12.2026 10:00 — Residence permit · Work, Residence permit · Family, Residence permit · Study, Residence permit · Permanent",
-    "30.12.2026 10:00 — Residence permit · Work, Residence permit · Family, Residence permit · Study, Residence permit · Permanent",
-    "30.12.2026 10:30 — Residence permit · Work, Residence permit · Family, Residence permit · Study, Residence permit · Permanent",
     "30.12.2026 10:30 — Residence permit · Work, Residence permit · Family, Residence permit · Study, Residence permit · Permanent",
     "30.12.2026 10:30 — Residence permit · Work, Residence permit · Family, Residence permit · Study, Residence permit · Permanent",
     "30.12.2026 11:00 — Residence permit · Work, Residence permit · Family, Residence permit · Study, Residence permit · Permanent",
@@ -5936,6 +6020,8 @@
     "30.12.2026 13:30 — Residence permit · Work, Residence permit · Family, Residence permit · Study, Residence permit · Permanent",
     "30.12.2026 14:15 — Residence permit · Work, Residence permit · Family, Residence permit · Study, Residence permit · Permanent",
     "30.12.2026 14:15 — Residence permit · Work, Residence permit · Family, Residence permit · Study, Residence permit · Permanent",
+    "30.12.2026 14:45 — Residence permit · Work, Residence permit · Family, Residence permit · Study, Residence permit · Permanent",
+    "30.12.2026 15:15 — Residence permit · Work, Residence permit · Family, Residence permit · Study, Residence permit · Permanent",
     "01.02.2027 08:15 — Residence permit · Work, Residence permit · Family, Residence permit · Study, Residence permit · Permanent",
     "01.02.2027 08:15 — Residence permit · Work, Residence permit · Family, Residence permit · Study, Residence permit · Permanent",
     "01.02.2027 08:15 — Residence permit · Work, Residence permit · Family, Residence permit · Study, Residence permit · Permanent",
@@ -6178,6 +6264,91 @@
   ],
   "availableSlots": [
     {
+      "date": "24.09.2026",
+      "time": "09:30",
+      "flows": [
+        "Residence permit · Work",
+        "Residence permit · Family",
+        "Residence permit · Study",
+        "Residence permit · Permanent"
+      ],
+      "flowIds": [
+        "residence_work",
+        "residence_family",
+        "residence_study",
+        "residence_permanent"
+      ],
+      "location": "Ahvenanmaa"
+    },
+    {
+      "date": "24.09.2026",
+      "time": "10:00",
+      "flows": [
+        "Residence permit · Work",
+        "Residence permit · Family",
+        "Residence permit · Study",
+        "Residence permit · Permanent"
+      ],
+      "flowIds": [
+        "residence_work",
+        "residence_family",
+        "residence_study",
+        "residence_permanent"
+      ],
+      "location": "Ahvenanmaa"
+    },
+    {
+      "date": "24.09.2026",
+      "time": "10:30",
+      "flows": [
+        "Residence permit · Work",
+        "Residence permit · Family",
+        "Residence permit · Study",
+        "Residence permit · Permanent"
+      ],
+      "flowIds": [
+        "residence_work",
+        "residence_family",
+        "residence_study",
+        "residence_permanent"
+      ],
+      "location": "Ahvenanmaa"
+    },
+    {
+      "date": "13.11.2026",
+      "time": "14:15",
+      "flows": [
+        "Residence permit · Work",
+        "Residence permit · Family",
+        "Residence permit · Study",
+        "Residence permit · Permanent"
+      ],
+      "flowIds": [
+        "residence_work",
+        "residence_family",
+        "residence_study",
+        "residence_permanent"
+      ],
+      "location": "Lappeenranta"
+    },
+    {
+      "date": "13.11.2026",
+      "time": "14:45",
+      "flows": [
+        "Residence permit · Work",
+        "Residence permit · Family",
+        "Residence permit · Study",
+        "Residence permit · Permanent"
+      ],
+      "flowIds": [
+        "residence_work",
+        "residence_family",
+        "residence_study",
+        "residence_permanent"
+      ],
+      "location": "Lappeenranta"
+    },
+    {
       "date": "30.11.2026",
       "time": "09:30",
       "flows": [
@@ -6196,7 +6367,7 @@
     },
     {
       "date": "01.12.2026",
-      "time": "10:00",
+      "time": "11:00",
       "flows": [
         "Residence permit · Work",
         "Residence permit · Family",
@@ -7943,23 +8114,6 @@
         "residence_study",
         "residence_permanent"
       ],
-      "location": "Oulu"
-    },
-    {
-      "date": "30.12.2026",
-      "time": "10:00",
-      "flows": [
-        "Residence permit · Work",
-        "Residence permit · Family",
-        "Residence permit · Study",
-        "Residence permit · Permanent"
-      ],
-      "flowIds": [
-        "residence_work",
-        "residence_family",
-        "residence_study",
-        "residence_permanent"
-      ],
       "location": "Tampere"
     },
     {
@@ -7978,23 +8132,6 @@
         "residence_permanent"
       ],
       "location": "Turku"
-    },
-    {
-      "date": "30.12.2026",
-      "time": "10:30",
-      "flows": [
-        "Residence permit · Work",
-        "Residence permit · Family",
-        "Residence permit · Study",
-        "Residence permit · Permanent"
-      ],
-      "flowIds": [
-        "residence_work",
-        "residence_family",
-        "residence_study",
-        "residence_permanent"
-      ],
-      "location": "Oulu"
     },
     {
       "date": "30.12.2026",
@@ -8267,6 +8404,40 @@
         "residence_permanent"
       ],
       "location": "Turku"
+    },
+    {
+      "date": "30.12.2026",
+      "time": "14:45",
+      "flows": [
+        "Residence permit · Work",
+        "Residence permit · Family",
+        "Residence permit · Study",
+        "Residence permit · Permanent"
+      ],
+      "flowIds": [
+        "residence_work",
+        "residence_family",
+        "residence_study",
+        "residence_permanent"
+      ],
+      "location": "Oulu"
+    },
+    {
+      "date": "30.12.2026",
+      "time": "15:15",
+      "flows": [
+        "Residence permit · Work",
+        "Residence permit · Family",
+        "Residence permit · Study",
+        "Residence permit · Permanent"
+      ],
+      "flowIds": [
+        "residence_work",
+        "residence_family",
+        "residence_study",
+        "residence_permanent"
+      ],
+      "location": "Oulu"
     },
     {
       "date": "01.02.2027",
@@ -12332,7 +12503,7 @@
       "location": "Vaasa"
     }
   ],
-  "checkedAt": "2026-09-23T13:33:01.042Z",
+  "checkedAt": "2026-09-23T18:01:37.304Z",
   "failures": [],
   "check": "All residence-permit flows for all supported locations",
   "bookingUrl": "https://migri.vihta.com/public/migri/"
