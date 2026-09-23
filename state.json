@@ -907,7 +907,7 @@
     "Lappeenranta": [
       {
         "date": "25.09.2026",
-        "time": "12:30",
+        "time": "13:00",
         "flows": [
           "Residence permit · Work",
           "Residence permit · Family",
@@ -924,22 +924,6 @@
       {
         "date": "13.11.2026",
         "time": "09:30",
-        "flows": [
-          "Residence permit · Work",
-          "Residence permit · Family",
-          "Residence permit · Study",
-          "Residence permit · Permanent"
-        ],
-        "flowIds": [
-          "residence_work",
-          "residence_family",
-          "residence_study",
-          "residence_permanent"
-        ]
-      },
-      {
-        "date": "13.11.2026",
-        "time": "14:15",
         "flows": [
           "Residence permit · Work",
           "Residence permit · Family",
@@ -3970,22 +3954,6 @@
     ],
     "Turku": [
       {
-        "date": "28.10.2026",
-        "time": "15:15",
-        "flows": [
-          "Residence permit · Work",
-          "Residence permit · Family",
-          "Residence permit · Study",
-          "Residence permit · Permanent"
-        ],
-        "flowIds": [
-          "residence_work",
-          "residence_family",
-          "residence_study",
-          "residence_permanent"
-        ]
-      },
-      {
         "date": "28.12.2026",
         "time": "08:15",
         "flows": [
@@ -5713,10 +5681,8 @@
     "24.09.2026 09:30 — Residence permit · Work, Residence permit · Family, Residence permit · Study, Residence permit · Permanent",
     "24.09.2026 10:00 — Residence permit · Work, Residence permit · Family, Residence permit · Study, Residence permit · Permanent",
     "24.09.2026 10:30 — Residence permit · Work, Residence permit · Family, Residence permit · Study, Residence permit · Permanent",
-    "25.09.2026 12:30 — Residence permit · Work, Residence permit · Family, Residence permit · Study, Residence permit · Permanent",
-    "28.10.2026 15:15 — Residence permit · Work, Residence permit · Family, Residence permit · Study, Residence permit · Permanent",
+    "25.09.2026 13:00 — Residence permit · Work, Residence permit · Family, Residence permit · Study, Residence permit · Permanent",
     "13.11.2026 09:30 — Residence permit · Work, Residence permit · Family, Residence permit · Study, Residence permit · Permanent",
-    "13.11.2026 14:15 — Residence permit · Work, Residence permit · Family, Residence permit · Study, Residence permit · Permanent",
     "13.11.2026 14:45 — Residence permit · Work, Residence permit · Family, Residence permit · Study, Residence permit · Permanent",
     "28.12.2026 08:15 — Residence permit · Work, Residence permit · Family, Residence permit · Study, Residence permit · Permanent",
     "28.12.2026 08:15 — Residence permit · Work, Residence permit · Family, Residence permit · Study, Residence permit · Permanent",
@@ -6133,7 +6099,7 @@
     },
     {
       "date": "25.09.2026",
-      "time": "12:30",
+      "time": "13:00",
       "flows": [
         "Residence permit · Work",
         "Residence permit · Family",
@@ -6147,44 +6113,10 @@
         "residence_permanent"
       ],
       "location": "Lappeenranta"
-    },
-    {
-      "date": "28.10.2026",
-      "time": "15:15",
-      "flows": [
-        "Residence permit · Work",
-        "Residence permit · Family",
-        "Residence permit · Study",
-        "Residence permit · Permanent"
-      ],
-      "flowIds": [
-        "residence_work",
-        "residence_family",
-        "residence_study",
-        "residence_permanent"
-      ],
-      "location": "Turku"
     },
     {
       "date": "13.11.2026",
       "time": "09:30",
-      "flows": [
-        "Residence permit · Work",
-        "Residence permit · Family",
-        "Residence permit · Study",
-        "Residence permit · Permanent"
-      ],
-      "flowIds": [
-        "residence_work",
-        "residence_family",
-        "residence_study",
-        "residence_permanent"
-      ],
-      "location": "Lappeenranta"
-    },
-    {
-      "date": "13.11.2026",
-      "time": "14:15",
       "flows": [
         "Residence permit · Work",
         "Residence permit · Family",
@@ -12137,7 +12069,7 @@
       "location": "Vaasa"
     }
   ],
-  "checkedAt": "2026-09-23T21:27:05.589Z",
+  "checkedAt": "2026-09-23T23:57:50.180Z",
   "failures": [],
   "check": "All residence-permit flows for all supported locations",
   "bookingUrl": "https://migri.vihta.com/public/migri/"
