@@ -857,22 +857,6 @@
     ],
     "Lappeenranta": [
       {
-        "date": "04.12.2026",
-        "time": "08:45",
-        "flows": [
-          "Residence permit · Work",
-          "Residence permit · Family",
-          "Residence permit · Study",
-          "Residence permit · Permanent"
-        ],
-        "flowIds": [
-          "residence_work",
-          "residence_family",
-          "residence_study",
-          "residence_permanent"
-        ]
-      },
-      {
         "date": "28.12.2026",
         "time": "08:15",
         "flows": [
@@ -5685,7 +5669,6 @@
     ]
   },
   "slots": [
-    "04.12.2026 08:45 — Residence permit · Work, Residence permit · Family, Residence permit · Study, Residence permit · Permanent",
     "28.12.2026 08:15 — Residence permit · Work, Residence permit · Family, Residence permit · Study, Residence permit · Permanent",
     "28.12.2026 08:15 — Residence permit · Work, Residence permit · Family, Residence permit · Study, Residence permit · Permanent",
     "28.12.2026 08:15 — Residence permit · Work, Residence permit · Family, Residence permit · Study, Residence permit · Permanent",
@@ -6041,23 +6024,6 @@
     "05.02.2027 14:15 — Residence permit · Work, Residence permit · Family, Residence permit · Study, Residence permit · Permanent"
   ],
   "availableSlots": [
-    {
-      "date": "04.12.2026",
-      "time": "08:45",
-      "flows": [
-        "Residence permit · Work",
-        "Residence permit · Family",
-        "Residence permit · Study",
-        "Residence permit · Permanent"
-      ],
-      "flowIds": [
-        "residence_work",
-        "residence_family",
-        "residence_study",
-        "residence_permanent"
-      ],
-      "location": "Lappeenranta"
-    },
     {
       "date": "28.12.2026",
       "time": "08:15",
@@ -12060,7 +12026,7 @@
       "location": "Vaasa"
     }
   ],
-  "checkedAt": "2026-09-24T18:40:39.545Z",
+  "checkedAt": "2026-09-24T22:11:22.287Z",
   "failures": [],
   "check": "All residence-permit flows for all supported locations",
   "bookingUrl": "https://migri.vihta.com/public/migri/"
