@@ -11652,7 +11652,7 @@
       "location": "Vaasa"
     }
   ],
-  "checkedAt": "2026-10-07T20:55:36.725Z",
+  "checkedAt": "2026-10-08T01:01:40.015Z",
   "failures": [
     "Ahvenanmaa/residence_work: locator.waitFor: Timeout 15000ms exceeded.\nCall log:\n  - waiting for getByRole('link', { name: 'Varaa uusi aika' }) to be visible\n",
     "Ahvenanmaa/residence_family: locator.waitFor: Timeout 15000ms exceeded.\nCall log:\n  - waiting for getByRole('link', { name: 'Varaa uusi aika' }) to be visible\n",
@@ -11671,7 +11671,7 @@
     "Lahti/residence_study: locator.waitFor: Timeout 15000ms exceeded.\nCall log:\n  - waiting for getByRole('link', { name: 'Varaa uusi aika' }) to be visible\n",
     "Lahti/residence_permanent: locator.waitFor: Timeout 15000ms exceeded.\nCall log:\n  - waiting for getByRole('link', { name: 'Varaa uusi aika' }) to be visible\n",
     "Lappeenranta/residence_work: locator.waitFor: Timeout 15000ms exceeded.\nCall log:\n  - waiting for getByRole('link', { name: 'Varaa uusi aika' }) to be visible\n",
-    "Lappeenranta/residence_family: locator.waitFor: Timeout 15000ms exceeded.\nCall log:\n  - waiting for getByRole('link', { name: 'Varaa uusi aika' }) to be visible\n",
+    "Lappeenranta/residence_family: page.goto: net::ERR_CONNECTION_RESET at https://migri.vihta.com/public/migri/\nCall log:\n  - navigating to \"https://migri.vihta.com/public/migri/\", waiting until \"domcontentloaded\"\n",
     "Lappeenranta/residence_study: locator.waitFor: Timeout 15000ms exceeded.\nCall log:\n  - waiting for getByRole('link', { name: 'Varaa uusi aika' }) to be visible\n",
     "Lappeenranta/residence_permanent: locator.waitFor: Timeout 15000ms exceeded.\nCall log:\n  - waiting for getByRole('link', { name: 'Varaa uusi aika' }) to be visible\n",
     "Oulu/residence_work: locator.waitFor: Timeout 15000ms exceeded.\nCall log:\n  - waiting for getByRole('link', { name: 'Varaa uusi aika' }) to be visible\n",
