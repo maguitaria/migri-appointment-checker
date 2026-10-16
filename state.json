@@ -11652,7 +11652,7 @@
       "location": "Vaasa"
     }
   ],
-  "checkedAt": "2026-10-16T00:49:43.256Z",
+  "checkedAt": "2026-10-16T05:48:15.287Z",
   "failures": [
     "Ahvenanmaa/residence_work: locator.waitFor: Timeout 15000ms exceeded.\nCall log:\n  - waiting for getByRole('link', { name: 'Varaa uusi aika' }) to be visible\n",
     "Ahvenanmaa/residence_family: locator.waitFor: Timeout 15000ms exceeded.\nCall log:\n  - waiting for getByRole('link', { name: 'Varaa uusi aika' }) to be visible\n",
@@ -11687,7 +11687,7 @@
     "Tampere/residence_study: locator.waitFor: Timeout 15000ms exceeded.\nCall log:\n  - waiting for getByRole('link', { name: 'Varaa uusi aika' }) to be visible\n",
     "Tampere/residence_permanent: locator.waitFor: Timeout 15000ms exceeded.\nCall log:\n  - waiting for getByRole('link', { name: 'Varaa uusi aika' }) to be visible\n",
     "Turku/residence_work: locator.waitFor: Timeout 15000ms exceeded.\nCall log:\n  - waiting for getByRole('link', { name: 'Varaa uusi aika' }) to be visible\n",
-    "Turku/residence_family: page.goto: Timeout 45000ms exceeded.\nCall log:\n  - navigating to \"https://migri.vihta.com/public/migri/\", waiting until \"domcontentloaded\"\n",
+    "Turku/residence_family: locator.waitFor: Timeout 15000ms exceeded.\nCall log:\n  - waiting for getByRole('link', { name: 'Varaa uusi aika' }) to be visible\n",
     "Turku/residence_study: locator.waitFor: Timeout 15000ms exceeded.\nCall log:\n  - waiting for getByRole('link', { name: 'Varaa uusi aika' }) to be visible\n",
     "Turku/residence_permanent: locator.waitFor: Timeout 15000ms exceeded.\nCall log:\n  - waiting for getByRole('link', { name: 'Varaa uusi aika' }) to be visible\n",
     "Vaasa/residence_work: locator.waitFor: Timeout 15000ms exceeded.\nCall log:\n  - waiting for getByRole('link', { name: 'Varaa uusi aika' }) to be visible\n",
