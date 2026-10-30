@@ -11652,7 +11652,7 @@
       "location": "Vaasa"
     }
   ],
-  "checkedAt": "2026-10-30T08:31:16.337Z",
+  "checkedAt": "2026-10-30T15:25:06.767Z",
   "failures": [
     "Ahvenanmaa/residence_work: locator.waitFor: Timeout 15000ms exceeded.\nCall log:\n  - waiting for getByRole('link', { name: 'Varaa uusi aika' }) to be visible\n",
     "Ahvenanmaa/residence_family: locator.waitFor: Timeout 15000ms exceeded.\nCall log:\n  - waiting for getByRole('link', { name: 'Varaa uusi aika' }) to be visible\n",
