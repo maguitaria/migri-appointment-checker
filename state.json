@@ -21444,7 +21444,7 @@
       "location": "Turku"
     }
   ],
-  "checkedAt": "2026-11-02T01:10:40.257Z",
+  "checkedAt": "2026-11-02T07:47:37.657Z",
   "failures": [
     "Ahvenanmaa/residence_work: locator.waitFor: Timeout 15000ms exceeded.\nCall log:\n  - waiting for getByRole('link', { name: 'Varaa uusi aika' }) to be visible\n",
     "Ahvenanmaa/residence_family: locator.waitFor: Timeout 15000ms exceeded.\nCall log:\n  - waiting for getByRole('link', { name: 'Varaa uusi aika' }) to be visible\n",
