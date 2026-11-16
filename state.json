@@ -15619,7 +15619,7 @@
       "location": "Helsinki"
     }
   ],
-  "checkedAt": "2026-11-16T02:50:13.407Z",
+  "checkedAt": "2026-11-16T10:59:52.846Z",
   "failures": [
     "Ahvenanmaa/residence_work: locator.waitFor: Timeout 15000ms exceeded.\nCall log:\n  - waiting for getByRole('link', { name: 'Varaa uusi aika' }) to be visible\n",
     "Ahvenanmaa/residence_family: locator.waitFor: Timeout 15000ms exceeded.\nCall log:\n  - waiting for getByRole('link', { name: 'Varaa uusi aika' }) to be visible\n",
